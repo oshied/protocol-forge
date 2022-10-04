@@ -1,0 +1,55 @@
+name: Daily project update scan
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install requests
+    - name: Set notification matrix
+      id: matrix
+      run: |
+        echo "::set-output name=matrix::$(.github/bin/project-release-scan.py ${{ secrets.GITHUB_TOKEN }})"
+  Notification:
+    needs:
+    - setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Extract and push binaries
+      run: |
+        echo "${{ matrix.current_release }}" > ${{ matrix.name }}/VERSION
+    - name: Create Pull Request
+      if: steps.matrix.outputs.matrix != '[]'
+      id: cpr
+      uses: peter-evans/create-pull-request@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: Update project tracking
+        committer: GitHub <noreply@github.com>
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        signoff: false
+        branch: update-projects
+        delete-branch: true
+        title: 'chore: Update ${{ matrix.name }} to ${{ matrix.current_release }}'
+        body: |
+          automated update for ${{ matrix.name }}.
+
+          The found in repo version is ${{ matrix.existing_release }} and the current head is
+          has been changed to ${{ matrix.current_release }}.
+        labels: |
+          automated pr
+        draft: false
