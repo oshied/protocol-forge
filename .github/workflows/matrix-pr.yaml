@@ -40,9 +40,9 @@ jobs:
           push: false
           file: "Dockerfile"
           tags: |
-            ${{ env.IMAGE_REGISTRY }}/${{ matrix.base }}:${{ github.sha }}
-            ${{ env.IMAGE_REGISTRY }}/${{ matrix.base }}:${{ matrix.version }}
-            ${{ env.IMAGE_REGISTRY }}/${{ matrix.base }}:latest
+            ${{ matrix.base }}:${{ github.sha }}
+            ${{ matrix.base }}:${{ matrix.version }}
+            ${{ matrix.base }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
