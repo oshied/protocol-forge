@@ -11,5 +11,5 @@ WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/build/quasarnoded /usr/local/bin/quasarnoded
 WORKDIR /usr/local/lib/quasar
 COPY --from=BUILD /build_dir/build/libwasmvm.x86_64.so /usr/local/lib/quasar/libwasmvm.x86_64.so
-ENV LD_LIBRARY_PATH=/usr/local/lib/quasar/libwasmvm.x86_64.so
+ENV LD_LIBRARY_PATH=/usr/local/lib/quasar
 ENTRYPOINT ["/usr/local/bin/quasarnoded"]
