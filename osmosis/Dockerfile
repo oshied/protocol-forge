@@ -13,5 +13,6 @@ COPY --from=BUILD /build_dir/build/chain /usr/local/bin/chain
 COPY --from=BUILD /build_dir/build/node /usr/local/bin/node
 WORKDIR /usr/local/lib/osmosis
 COPY --from=BUILD /build_dir/build/libwasmvm.x86_64.so /usr/local/lib/osmosis/libwasmvm.x86_64.so
-ENV LD_LIBRARY_PATH=/usr/local/lib/osmosis/libwasmvm.x86_64.so
+COPY --from=BUILD /lib/x86_64-linux-gnu/libgcc_s.so.1 /usr/local/lib/osmosis/libgcc_s.so.1
+ENV LD_LIBRARY_PATH=/usr/local/lib/osmosis
 ENTRYPOINT ["/usr/local/bin/osmosisd"]
