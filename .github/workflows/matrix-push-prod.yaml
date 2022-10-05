@@ -57,13 +57,22 @@ jobs:
             git_version=${{ matrix.git_version }}
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
-
-      # - name: Extract and push binaries
-      #   run: |
-      #     CONTAINER="$(docker create ${{ matrix.base }}:${{ matrix.version }} ${{ matrix.base }})"
-      #     BIN_TMP_DIR="/tmp/${{ matrix.base }}"
-      #     mkdir -p "${BIN_TMP_DIR}"
-      #     for FILE_NAME in ${{ matrix.manifest }}; do
-      #       BASE_FILE_NAME="$(basename ${FILE_NAME})"
-      #       docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
-      #     done
+      - name: Set notification matrix
+        id: binaries
+        run: |
+          echo "::set-output name=binaries::${{ matrix }}"
+  binary:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Extract and push binaries
+        run: |
+          CONTAINER="$(docker create ${{ needs.binaries.outputs.base }}:${{ needs.binaries.outputs.version }} ${{ needs.binaries.outputs.base }})"
+          BIN_TMP_DIR="/tmp/${{ needs.binaries.outputs.base }}"
+          mkdir -p "${BIN_TMP_DIR}"
+          for FILE_NAME in ${{ needs.binaries.outputs.manifest }}; do
+            BASE_FILE_NAME="$(basename ${FILE_NAME})"
+            docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
+          done
+      # PUSH to archive at a later date.
