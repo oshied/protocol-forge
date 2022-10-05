@@ -12,5 +12,5 @@ WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/bin/comdex /usr/local/bin/comdex
 WORKDIR /usr/local/lib/comdex
 COPY --from=BUILD /build_dir/build/libwasmvm.x86_64.so /usr/local/lib/comdex/libwasmvm.x86_64.so
-ENV LD_LIBRARY_PATH=/usr/local/lib/comdex/libwasmvm.x86_64.so
+ENV LD_LIBRARY_PATH=/usr/local/lib/comdex
 ENTRYPOINT ["/usr/local/bin/comdex"]

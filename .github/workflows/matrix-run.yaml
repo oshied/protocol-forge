@@ -103,5 +103,5 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: binary-extracts
+          name: binary-extracts-${{ matrix.base }}
           path: /tmp/${{ matrix.base }}*
