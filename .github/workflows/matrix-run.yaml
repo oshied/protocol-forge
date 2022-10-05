@@ -34,12 +34,15 @@ jobs:
     needs:
       - setup
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     services:
       registry:
         image: registry:2
         ports:
           - 5000:5000
     strategy:
+      fail-fast: false
+      max-parallel: 5
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3
@@ -89,6 +92,14 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
+      - name: Docker Hub Description
+        uses: peter-evans/dockerhub-description@v3
+        if: ${{ github.event_name == 'push' }}
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: cloudnull/${{ matrix.base }}
+          readme-filepath: ${{ matrix.base }}/README.md
       - name: Upload buildx artifacts
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v2
