@@ -41,6 +41,8 @@ jobs:
         ports:
           - 5000:5000
     strategy:
+      fail-fast: false
+      max-parallel: 5
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3

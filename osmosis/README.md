@@ -1,1 +1,1 @@
-# Distroless container build for Osmosis
+# Distroless container build for osmosis

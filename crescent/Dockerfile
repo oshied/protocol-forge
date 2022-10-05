@@ -7,5 +7,5 @@ RUN make build
 
 FROM gcr.io/distroless/base-debian11:latest
 WORKDIR /usr/local/bin
-COPY --from=BUILD /build_dir/build/crescent /usr/local/bin/crescent
-ENTRYPOINT ["/usr/local/bin/crescent"]
+COPY --from=BUILD /build_dir/build/crescentd /usr/local/bin/crescentd
+ENTRYPOINT ["/usr/local/bin/crescentd"]
