@@ -50,9 +50,12 @@ jobs:
       - uses: docker/setup-buildx-action@v2
         with:
           driver-opts: network=host
-      - name: Create buildx cache
-        run: |
-          mkdir -p /tmp/.buildx-cache
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to DockerHub
         if: ${{ github.event_name == 'push' }}
         uses: docker/login-action@v2
@@ -64,6 +67,11 @@ jobs:
         run: |
           TARGET_TAG=${{ matrix.target }}
           echo "::set-output name=value::${TARGET_TAG:-latest}"
+      - name: Set reference sha
+        id: refsha
+        run: |
+          REF_SHA=${{ github.event.pull_request.head.sha }}
+          echo "::set-output name=value::${REF_SHA:-${{ github.sha }}}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
@@ -74,10 +82,13 @@ jobs:
           target: "${{ matrix.target }}"
           tags: |
             localhost:5000/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }}
           build-args: |
             git_version=${{ matrix.git_version }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
       - name: Build and push remote
@@ -96,8 +107,10 @@ jobs:
             cloudnull/${{ matrix.base }}:latest
           build-args: |
             git_version=${{ matrix.git_version }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }}
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }},mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
       - name: Docker Hub Description
@@ -108,12 +121,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: cloudnull/${{ matrix.base }}
           readme-filepath: ${{ matrix.base }}/README.md
-      - name: Upload buildx artifacts
-        if: ${{ github.event_name != 'push' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: buildx-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
-          path: /tmp/.buildx-cache
       - name: Extract and push binaries
         run: |
           CONTAINER="$(docker create localhost:5000/${{ matrix.base }}:latest ${{ matrix.base }})"
