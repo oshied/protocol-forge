@@ -71,10 +71,11 @@ jobs:
         id: refsha
         run: |
           REF_SHA=${{ github.event.pull_request.head.sha }}
-          echo "::set-output name=value::${REF_SHA:-${{ github.sha }}}"
+          echo "::set-output name=value::${REF_SHA:-$GITHUB_REF}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
+        if: ${{ github.event_name != 'push' }}
         with:
           context: "{{defaultContext}}:${{ matrix.base }}"
           push: true
@@ -101,6 +102,7 @@ jobs:
           file: "Dockerfile"
           target: "${{ matrix.target }}"
           tags: |
+            localhost:5000/${{ matrix.base }}:latest
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             cloudnull/${{ matrix.base }}:${{ github.sha }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
