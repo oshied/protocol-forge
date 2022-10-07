@@ -1,4 +1,4 @@
-FROM cloudnull/base-go1.19:latest as GO_BUILD
+FROM cloudnull/base-go1.19:bionic as GO_BUILD
 
 FROM cloudnull/base-nodejs-lts:latest as BUILD
 ARG git_repository=https://github.com/Agoric/agoric-sdk

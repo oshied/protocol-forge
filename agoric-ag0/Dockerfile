@@ -1,4 +1,4 @@
-FROM cloudnull/base-go1.19:latest as BUILD
+FROM cloudnull/base-go1.19:bionic as BUILD
 ARG git_repository=https://github.com/Agoric/ag0
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir

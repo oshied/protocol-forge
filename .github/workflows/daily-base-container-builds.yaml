@@ -62,6 +62,8 @@ jobs:
             GIT_AUTH_TOKEN=${{ github.token }}
 
   setup_languages:
+    needs:
+      - base_build
     runs-on: ubuntu-latest
     outputs:
       matrix_base: ${{ steps.matrix_base.outputs.matrix }}
