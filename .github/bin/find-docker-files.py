@@ -30,7 +30,16 @@ def main():
                 with open(manifest_file, encoding="utf-8") as f:
                     item["manifest"] = " ".join([i.strip() for i in f.readlines() if i])
 
-            updates.append(item)
+            targets_file = os.path.join(path, "TARGETS")
+            if os.path.exists(targets_file):
+                with open(targets_file, encoding="utf-8") as f:
+                    for target in [i.strip() for i in f.readlines() if i]:
+                        new_item = item.copy()
+                        new_item['target'] = target
+                        updates.append(new_item)
+            else:
+                item['target'] = ''
+                updates.append(item)
 
     if bad_versions:
         for file, error in bad_versions.items():

@@ -59,6 +59,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set target tag default
+        id: targettag
+        run: |
+          TARGET_TAG=${{ matrix.target }}
+          echo "::set-output name=value::${TARGET_TAG:-'latest'}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
@@ -66,6 +71,7 @@ jobs:
           context: "{{defaultContext}}:${{ matrix.base }}"
           push: true
           file: "Dockerfile"
+          target: "${{ matrix.target }}"
           tags: |
             localhost:5000/${{ matrix.base }}:latest
           build-args: |
@@ -82,7 +88,9 @@ jobs:
           context: "{{defaultContext}}:${{ matrix.base }}"
           push: true
           file: "Dockerfile"
+          target: "${{ matrix.target }}"
           tags: |
+            cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             cloudnull/${{ matrix.base }}:${{ github.sha }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
             cloudnull/${{ matrix.base }}:latest
@@ -104,7 +112,7 @@ jobs:
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v2
         with:
-          name: buildx-artifacts-${{ matrix.base }}
+          name: buildx-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
           path: /tmp/.buildx-cache
       - name: Extract and push binaries
         run: |
@@ -119,7 +127,7 @@ jobs:
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v2
         with:
-          name: binary-artifacts-${{ matrix.base }}
+          name: binary-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
           path: /tmp/${{ matrix.base }}*
 
       # PUSH extracted binaries to CDN
