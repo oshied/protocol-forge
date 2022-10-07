@@ -42,7 +42,7 @@ jobs:
           - 5000:5000
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 10
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3
@@ -63,7 +63,7 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "::set-output name=value::${TARGET_TAG:-'latest'}"
+          echo "::set-output name=value::${TARGET_TAG:-latest}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3

@@ -20,6 +20,7 @@ The directory structure is simple
 └── VendoredContainerX
     ├── Dockerfile
     ├── VERSION
+    ├── TARGETS
     └── MANIFEST
 ```
 
@@ -37,14 +38,19 @@ Once the PR is merged, the push action will once again spawn a
 matrix for all changes and perform the same build action, but this
 time push the built image to our registry.
 
-Items in the MANIFEST file are extracted from the container image and
-pushed to our public S3 bucket. Items in the MANIFEST file follow the
-in container PATH. The base name will be extracted.
+> Items in the `TARGETS` file are used to define build targets which are
+  then pushed to the registry. This is useful to define multiple build
+  environments supporting different distros, or runtime specific
+  requirements.
+
+> Items in the `MANIFEST` file are extracted from the container image and
+  pushed to our public S3 bucket. Items in the MANIFEST file follow the
+  in container PATH. The base name will be extracted.
 
 We use the following format to push extracted build files.
 
 ``` url
-S3://VendoredContainerX/VERSION/MANIFEST_file
+S3://VendoredContainerX/TARGET(S)/VERSION/MANIFEST_file
 ```
 
 ### Reproducing a build

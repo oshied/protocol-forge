@@ -1,4 +1,4 @@
-FROM cloudnull/base-rustup:latest as BUILD
+FROM cloudnull/base-rustup:bionic as BUILD
 ARG git_repository=https://github.com/MystenLabs/sui
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
