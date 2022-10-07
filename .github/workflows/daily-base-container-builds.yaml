@@ -11,9 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         base_containers:
-          - "base-go1.19"
-          - "base-rustup"
-    steps:
+          - "base-build"
+    steps: &build-steps
       - name: Check out the repo
         uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
@@ -42,3 +41,16 @@ jobs:
             git_version=latest
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
+
+  base_languages:
+    runs-on: ubuntu-latest
+    needs:
+      - base_build
+    strategy:
+      fail-fast: false
+      matrix:
+        base_containers:
+          - "base-nodejs-current"
+          - "base-go1.19"
+          - "base-rustup"
+    steps: *build-steps
