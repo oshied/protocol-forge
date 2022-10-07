@@ -26,6 +26,7 @@ jobs:
       - setup
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3
