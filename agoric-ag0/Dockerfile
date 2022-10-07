@@ -8,5 +8,4 @@ RUN make build
 FROM gcr.io/distroless/base-debian11:latest
 WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/build/ag0 /usr/local/bin/ag0
-WORKDIR /usr/local/lib/ag0
 ENTRYPOINT ["/usr/local/bin/ag0"]

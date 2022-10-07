@@ -1,1 +1,1 @@
-# Distroless container build for agoric
+# Distroless container build for agoric-ag0
