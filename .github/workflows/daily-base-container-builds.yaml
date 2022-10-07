@@ -5,13 +5,24 @@ on:
     - cron: '0 6 * * *'
 
 jobs:
+  setup_base:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_base: ${{ steps.matrix_base.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set notification matrix
+        id: matrix_base
+        run: |
+          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py base-build)"
+
   base_build:
+    needs:
+      - setup_base
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        base_containers:
-          - "base-build"
+      matrix: "${{ fromJson(needs.setup_base.outputs.matrix_base) }}"
     steps: &build-steps
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -25,32 +36,47 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set target tag default
+        id: targettag
+        run: |
+          TARGET_TAG=${{ matrix.target }}
+          echo "::set-output name=value::${TARGET_TAG:-'latest'}"
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2
         with:
-          context: "{{defaultContext}}:${{ matrix.base_containers }}"
+          context: "{{defaultContext}}:${{ matrix.base }}"
           push: true
           file: "Dockerfile"
+          target: "${{ matrix.target }}"
           tags: |
-            cloudnull/${{ matrix.base_containers }}:${{ github.sha }}
-            cloudnull/${{ matrix.base_containers }}:latest
+            cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
+            cloudnull/${{ matrix.base }}:${{ github.sha }}
+            cloudnull/${{ matrix.base }}:${{ matrix.version }}
+            cloudnull/${{ matrix.base }}:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           build-args: |
-            git_version=latest
+            git_version=${{ matrix.version }}
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
+
+  setup_languages:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_base: ${{ steps.matrix_base.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set notification matrix
+        id: matrix_base
+        run: |
+          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py $(ls -1 | grep base | grep -v build | tr '\n' ' '))"
 
   base_languages:
     runs-on: ubuntu-latest
     needs:
-      - base_build
+      - setup_languages
     strategy:
       fail-fast: false
-      matrix:
-        base_containers:
-          - "base-nodejs-current"
-          - "base-go1.19"
-          - "base-rustup"
+      matrix: "${{ fromJson(needs.setup_base.outputs.matrix_base) }}"
     steps: *build-steps
