@@ -1,4 +1,4 @@
-FROM cloudnull/base-rustup:latest as BUILD
+FROM cloudnull/base-rustup:bionic as BUILD
 ARG git_repository=https://github.com/near/nearcore
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
