@@ -71,7 +71,7 @@ jobs:
         id: refsha
         run: |
           REF_SHA=${{ github.event.pull_request.head.sha }}
-          echo "::set-output name=value::${REF_SHA:-${{ github.event.head_commit.id }}}"
+          echo "::set-output name=value::${REF_SHA:-${{ github.event.workflow_run.head_sha }}}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
