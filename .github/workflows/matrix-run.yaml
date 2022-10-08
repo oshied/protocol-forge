@@ -45,11 +45,6 @@ jobs:
       max-parallel: 10
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
@@ -88,13 +83,12 @@ jobs:
           target: "${{ matrix.target }}"
           tags: |
             localhost:5000/${{ matrix.base }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }}
           build-args: |
             git_version=${{ matrix.git_version }}
           cache-from: |
             type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}
           cache-to: |
-            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }},mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
       - name: Build and push remote
@@ -117,7 +111,7 @@ jobs:
           cache-from: |
             type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }}
           cache-to: |
-            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }},mode=max
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
       - name: Docker Hub Description
