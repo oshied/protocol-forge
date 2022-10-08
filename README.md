@@ -11,7 +11,7 @@ used to define the "tag" when a container image is built.
 
 > The version file is any set of ASCII characters on a single line.
 
-### Hierarchy
+## Hierarchy
 
 The directory structure is simple
 
@@ -21,10 +21,19 @@ The directory structure is simple
     ├── Dockerfile
     ├── VERSION
     ├── TARGETS
-    └── MANIFEST
+    ├── MANIFEST
+    └── README.md
 ```
 
-## Build Process
+## Submitting a protocol
+
+When building a new protocol make sure that the new submission is following
+the defined hierarchy. When the pull request is submitted, if the build images
+will be held for review on the `ghcr` registry. Once the submission is approved
+the image will be rebuilt using the original approved build cache and pushed to
+docker hub accordingly.
+
+### Build Process
 
 Github actions is used to build the container images, using a dynamic
 matrix which is defined by items changed within the repository.
@@ -50,10 +59,10 @@ time push the built image to our registry.
 We use the following format to push extracted build files.
 
 ``` url
-S3://VendoredContainerX/TARGET(S)/VERSION/MANIFEST_file
+//VendoredContainerX/TARGET(S)/VERSION/MANIFEST_file
 ```
 
-### Reproducing a build
+#### Reproducing a build
 
 Recreating a build locally is simple as everything is done within a
 container.
