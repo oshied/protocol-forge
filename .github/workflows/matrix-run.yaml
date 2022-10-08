@@ -45,6 +45,11 @@ jobs:
       max-parallel: 10
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
@@ -71,7 +76,7 @@ jobs:
         id: refsha
         run: |
           REF_SHA=${{ github.event.pull_request.head.sha }}
-          echo "::set-output name=value::${REF_SHA:-${{ github.event.workflow_run.head_sha }}}"
+          echo "::set-output name=value::${REF_SHA:-${{ github.sha }}}"
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
