@@ -88,7 +88,7 @@ jobs:
       - setup_languages
     strategy:
       fail-fast: false
-      matrix: "${{ fromJson(needs.base_build.outputs.matrix_lang) }}"
+      matrix: "${{ fromJson(needs.base_languages.outputs.matrix_lang) }}"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
