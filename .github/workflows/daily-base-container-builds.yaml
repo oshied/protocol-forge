@@ -66,11 +66,11 @@ jobs:
       - base_build
     runs-on: ubuntu-latest
     outputs:
-      matrix_base: ${{ steps.matrix_base.outputs.matrix }}
+      matrix_lang: ${{ steps.matrix_lang.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
       - name: Set notification matrix
-        id: matrix_base
+        id: matrix_lang
         run: |
           echo "::set-output name=matrix::$(.github/bin/find-docker-files.py $(ls -1 | grep base | grep -v build | tr '\n' ' '))"
 
@@ -80,7 +80,7 @@ jobs:
       - setup_languages
     strategy:
       fail-fast: false
-      matrix: "${{ fromJson(needs.setup_base.outputs.matrix_base) }}"
+      matrix: "${{ fromJson(needs.base_build.outputs.matrix_lang) }}"
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
