@@ -31,6 +31,12 @@ jobs:
       - name: Create buildx cache
         run: |
           mkdir -p /tmp/.buildx-cache
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -54,8 +60,10 @@ jobs:
             cloudnull/${{ matrix.base }}:${{ github.sha }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
             cloudnull/${{ matrix.base }}:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
           build-args: |
             git_version=${{ matrix.version }}
           secrets: |
@@ -72,7 +80,7 @@ jobs:
       - name: Set notification matrix
         id: matrix_lang
         run: |
-          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py $(ls -1 | grep base | grep -v build | tr '\n' ' '))"
+          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py base*)"
 
   base_languages:
     runs-on: ubuntu-latest
@@ -86,9 +94,12 @@ jobs:
         uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
-      - name: Create buildx cache
-        run: |
-          mkdir -p /tmp/.buildx-cache
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -112,8 +123,10 @@ jobs:
             cloudnull/${{ matrix.base }}:${{ github.sha }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
             cloudnull/${{ matrix.base }}:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
           build-args: |
             git_version=${{ matrix.version }}
           secrets: |
