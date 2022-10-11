@@ -94,8 +94,7 @@ export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the ver
 export PROTOCOL_NAME="$(basename $(pwd))"
 
 # Run the build
-docker build --build-arg git_version=${CONTAINER_TAG} \
-             --tag ${PROTOCOL_NAME}:${CONTAINER_TAG} .
+docker build --build-arg git_version=${CONTAINER_TAG} --tag ${PROTOCOL_NAME}:${CONTAINER_TAG} .
 ```
 
 Once the build is complete binaries can be extracted or the container can
