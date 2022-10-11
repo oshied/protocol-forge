@@ -2,7 +2,7 @@ name: Daily base image update
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 2 * * *'
 
 jobs:
   setup_base:
