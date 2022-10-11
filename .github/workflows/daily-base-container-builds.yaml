@@ -46,7 +46,7 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "::set-output name=value::${TARGET_TAG:-'latest'}"
+          echo "::set-output name=value::${TARGET_TAG:-'target'}"
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2
@@ -57,7 +57,7 @@ jobs:
           target: "${{ matrix.target }}"
           tags: |
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
-            cloudnull/${{ matrix.base }}:${{ github.sha }}
+            cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
             cloudnull/${{ matrix.base }}:latest
           cache-from: |
@@ -120,7 +120,7 @@ jobs:
           target: "${{ matrix.target }}"
           tags: |
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
-            cloudnull/${{ matrix.base }}:${{ github.sha }}
+            cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
             cloudnull/${{ matrix.base }}:latest
           cache-from: |
