@@ -7,11 +7,15 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
-RUN DISABLE_WARNING_AS_ERROR=1 make -j 16 static_lib
+RUN DISABLE_WARNING_AS_ERROR=1 make -j 16 static_lib shared_lib
 RUN make install-static
+RUN make install-shared
 
 FROM gcr.io/distroless/base-debian11:latest
 WORKDIR /usr/local/lib
 COPY --from=BUILD /usr/local/lib/librocksdb.a /usr/local/lib/librocksdb.a
+COPY --from=BUILD /usr/local/lib/librocksdb.so /usr/local/lib/librocksdb.so
 WORKDIR /usr/local/lib/pkgconfig
 COPY --from=BUILD /usr/local/lib/pkgconfig/rocksdb.pc /usr/local/lib/pkgconfig/rocksdb.pc
+WORKDIR /usr/local/include
+COPY --from=BUILD /usr/local/include/rocksdb /usr/local/include/rocksdb
