@@ -14,7 +14,7 @@ jobs:
       - name: Set notification matrix
         id: matrix_base
         run: |
-          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py base-build)"
+          echo "matrix=$(.github/bin/find-docker-files.py base-build)" >> $GITHUB_OUTPUT
 
   base_build:
     needs:
@@ -46,7 +46,7 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "::set-output name=value::${TARGET_TAG:-'target'}"
+          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_OUTPUT
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2
@@ -83,7 +83,7 @@ jobs:
       - name: Set notification matrix
         id: matrix_base
         run: |
-          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py base*)"
+          echo "matrix=$(.github/bin/find-docker-files.py base*)" >> $GITHUB_OUTPUT
 
   base_languages:
     runs-on: ubuntu-latest
@@ -112,7 +112,7 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "::set-output name=value::${TARGET_TAG:-'latest'}"
+          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_OUTPUT
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2

@@ -27,7 +27,7 @@ jobs:
       - name: Set notification matrix
         id: matrix
         run: |
-          echo "::set-output name=matrix::$(.github/bin/find-docker-files.py ${{ steps.changed-files.outputs.all_changed_files }})"
+          echo "matrix=$(.github/bin/find-docker-files.py ${{ steps.changed-files.outputs.all_changed_files }})" >> $GITHUB_OUTPUT
 
   build:
     environment: main
@@ -66,12 +66,12 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "::set-output name=value::${TARGET_TAG:-target}"
+          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_ENV
       - name: Set reference sha
         id: refsha
         run: |
           REF_SHA=${{ github.event.pull_request.base.sha }}
-          echo "::set-output name=value::${REF_SHA:-${{ github.event.before }}}"
+          echo "value=${REF_SHA:-${{ github.event.before }}}" >> $GITHUB_ENV
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
