@@ -7,7 +7,7 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
-RUN DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
+RUN PORTABLE=1 DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
 RUN make install-shared
 
 FROM cloudnull/base-build:focal as focal
@@ -19,7 +19,7 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
-RUN DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
+RUN PORTABLE=1 DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
 RUN make install-shared
 
 FROM cloudnull/base-build:jammy as jammy
@@ -31,5 +31,5 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
-RUN DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
+RUN PORTABLE=1 DISABLE_WARNING_AS_ERROR=1 make -j 16 shared_lib
 RUN make install-shared
