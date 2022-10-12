@@ -1,4 +1,14 @@
 FROM ubuntu:18.04 as bionic
+ARG name="base-build"
+ARG summary="Base build image built on-top of ubuntu Bionic"
+LABEL description="${summary}" \
+      maintainer="cloudnull.io <kevin@cloudnull.com>" \
+      app.kubernetes.io/name="${name}" \
+      org.opencontainers.image.title="${name}" \
+      org.opencontainers.artifact.description="${summary}" \
+      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.authors="kevin@cloudnull.com" \
+      org.opencontainers.image.vendor="cloudnull.io"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
@@ -12,6 +22,16 @@ RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libb
                                  libusb-dev libusb-1.0-0-dev
 
 FROM ubuntu:20.04 as focal
+ARG name="base-build"
+ARG summary="Base build image built on-top of ubuntu Focal"
+LABEL description="${summary}" \
+      maintainer="cloudnull.io <kevin@cloudnull.com>" \
+      app.kubernetes.io/name="${name}" \
+      org.opencontainers.image.title="${name}" \
+      org.opencontainers.artifact.description="${summary}" \
+      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.authors="kevin@cloudnull.com" \
+      org.opencontainers.image.vendor="cloudnull.io"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
@@ -25,6 +45,16 @@ RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libb
                                  libusb-dev libusb-1.0-0-dev
 
 FROM ubuntu:22.04 as jammy
+ARG name="base-build"
+ARG summary="Base build image built on-top of ubuntu Jammy"
+LABEL description="${summary}" \
+      maintainer="cloudnull.io <kevin@cloudnull.com>" \
+      app.kubernetes.io/name="${name}" \
+      org.opencontainers.image.title="${name}" \
+      org.opencontainers.artifact.description="${summary}" \
+      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.authors="kevin@cloudnull.com" \
+      org.opencontainers.image.vendor="cloudnull.io"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
