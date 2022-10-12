@@ -16,7 +16,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
@@ -41,7 +42,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake
@@ -66,7 +68,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN git clone --recursive --branch $git_version $git_repository /rocksdb
 WORKDIR /rocksdb
 RUN ln -sf /usr/bin/make /usr/bin/gmake

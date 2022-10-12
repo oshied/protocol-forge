@@ -21,7 +21,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 WORKDIR /usr/local/bin
 COPY --from=BUILD /root/go/bin/akash /usr/local/bin/akash
 ENTRYPOINT ["/usr/local/bin/akash"]

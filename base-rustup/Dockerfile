@@ -8,7 +8,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN export PATH="$PATH:/root/.cargo/bin"
 
@@ -22,7 +23,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN export PATH="$PATH:/root/.cargo/bin"
 
@@ -36,6 +38,7 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN export PATH="$PATH:/root/.cargo/bin"
