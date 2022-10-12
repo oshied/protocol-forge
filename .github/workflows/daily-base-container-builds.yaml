@@ -46,7 +46,7 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_OUTPUT
+          echo "value=${TARGET_TAG:-target}" >> $GITHUB_OUTPUT
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2
@@ -112,7 +112,10 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_OUTPUT
+          if [ -z "$TARGET_TAG" ]; then
+            export TARGET_TAG=target
+          fi
+          echo "value=${TARGET_TAG}" >> $GITHUB_OUTPUT
       - name: Build and push
         id: docker-build
         uses: docker/build-push-action@v2

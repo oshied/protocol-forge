@@ -66,12 +66,21 @@ jobs:
         id: targettag
         run: |
           TARGET_TAG=${{ matrix.target }}
-          echo "value=${TARGET_TAG:-'target'}" >> $GITHUB_ENV
+          if [ -z "$TARGET_TAG" ]; then
+            export TARGET_TAG=target
+          fi
+          echo "value=${TARGET_TAG}" >> $GITHUB_OUTPUT
       - name: Set reference sha
         id: refsha
         run: |
           REF_SHA=${{ github.event.pull_request.base.sha }}
-          echo "value=${REF_SHA:-${{ github.event.before }}}" >> $GITHUB_ENV
+          if [ -z "$REF_SHA" ]; then
+            export REF_SHA=${{ github.event.before }}
+            if [ -z "$REF_SHA" ]; then
+              export REF_SHA=${{ github.sha }}
+            fi
+          fi
+          echo "value=${REF_SHA}" >> $GITHUB_OUTPUT
       - name: Build and push local
         id: docker_build_local
         uses: docker/build-push-action@v3
