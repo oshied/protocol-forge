@@ -11,6 +11,8 @@ jobs:
       matrix_base: ${{ steps.matrix_base.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
       - name: Set notification matrix
         id: matrix_base
         run: |
@@ -80,6 +82,8 @@ jobs:
       matrix_base: ${{ steps.matrix_base.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
       - name: Set notification matrix
         id: matrix_base
         run: |
