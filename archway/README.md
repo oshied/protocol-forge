@@ -1,1 +1,1 @@
-# Distroless container build for osmosis
+# Distroless container build for archway
