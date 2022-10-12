@@ -8,7 +8,7 @@ RUN make build
 FROM gcr.io/distroless/base-debian11:latest
 ARG git_repository=https://github.com/crescent-network/crescent.git
 ARG git_version=main
-ARG name="cosmovisor"
+ARG name="crescent"
 ARG summary="Distroless container build for ${name}."
 LABEL description="${summary}" \
       maintainer="cloudnull.io <kevin@cloudnull.com>" \
