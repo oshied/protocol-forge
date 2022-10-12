@@ -4,8 +4,7 @@ FROM cloudnull/base-go1.19:focal as BUILD_GO
 
 FROM cloudnull/base-nodejs-lts:focal as BUILD
 WORKDIR /usr/local/lib
-COPY --from=BUILD_ROCKS /usr/local/lib/librocksdb.so /usr/local/lib/
-COPY --from=BUILD_ROCKS /usr/local/lib/librocksdb.so.6.29 /usr/local/lib/
+COPY --from=BUILD_ROCKS /usr/local/lib /usr/local/lib
 WORKDIR /usr/local/include
 COPY --from=BUILD_ROCKS /usr/local/include/rocksdb /usr/local/include/rocksdb
 WORKDIR /usr/local/bin
@@ -25,23 +24,24 @@ RUN cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER='/usr/bin/gcc-9' -DCM
 RUN cmake --build .
 WORKDIR /build_dir/packages/arb-rpc-node/cmd/arb-node
 RUN /usr/local/go/bin/go build ./
+WORKDIR /build_dir/packages/arb-avm-cpp/release/lib
+RUN cp /usr/local/lib/librocksdb* \
+       /lib/x86_64-linux-gnu/libgmp* \
+       /lib/x86_64-linux-gnu/libstdc* \
+       /lib/x86_64-linux-gnu/libatomic* \
+       /lib/x86_64-linux-gnu/libgcc_s* \
+       /lib/x86_64-linux-gnu/libsnappy* \
+       /lib/x86_64-linux-gnu/libgflags* \
+       /lib/x86_64-linux-gnu/libz* \
+       /lib/x86_64-linux-gnu/libbz2* \
+       /lib/x86_64-linux-gnu/liblz4* \
+       /lib/x86_64-linux-gnu/libzstd* \
+       /lib/x86_64-linux-gnu/libnuma* /build_dir/packages/arb-avm-cpp/release/lib/
 
 FROM gcr.io/distroless/base-debian11:latest
 WORKDIR /usr/local/bin
-COPY --from=BUILD /build_dir/packages/arb-rpc-node/cmd/arb-node/arb-node /usr/local/bin/
+COPY --from=BUILD /build_dir/packages/arb-rpc-node/cmd/arb-node/arb-node /usr/local/bin/arb-node
 WORKDIR /usr/local/lib/arbitrum
-COPY --from=BUILD /usr/local/lib/librocksdb.so /usr/local/lib/arbitrum/
-COPY --from=BUILD /usr/local/lib/librocksdb.so.6.29 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libgmp.so.10 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libstdc++.so.6 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libatomic.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libgcc_s.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libsnappy.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libgflags.so.2.2 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libz.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libbz2.so.1.0 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/liblz4.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libzstd.so.1 /usr/local/lib/arbitrum/
-COPY --from=BUILD /lib/x86_64-linux-gnu/libnuma.so.1 /usr/local/lib/arbitrum/
+COPY --from=BUILD /build_dir/packages/arb-avm-cpp/release/lib /usr/local/lib/arbitrum
 ENV LD_LIBRARY_PATH=/usr/local/lib/arbitrum
 ENTRYPOINT ["/usr/local/bin/arb-node"]
