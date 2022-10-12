@@ -56,6 +56,9 @@ jobs:
           file: "Dockerfile"
           target: "${{ matrix.target }}"
           tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}
@@ -119,6 +122,9 @@ jobs:
           file: "Dockerfile"
           target: "${{ matrix.target }}"
           tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ matrix.version }}

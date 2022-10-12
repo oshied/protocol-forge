@@ -88,7 +88,7 @@ jobs:
           cache-from: |
             type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}
           cache-to: |
-            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }},mode=max
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}-${{ steps.refsha.outputs.value }},mode=max
           secrets: |
             GIT_AUTH_TOKEN=${{ github.token }}
       - name: Build and push remote
@@ -102,6 +102,9 @@ jobs:
           target: "${{ matrix.target }}"
           tags: |
             localhost:5000/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             cloudnull/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
             cloudnull/${{ matrix.base }}:${{ steps.refsha.outputs.value }}
@@ -110,7 +113,7 @@ jobs:
           build-args: |
             git_version=${{ matrix.git_version }}
           cache-from: |
-            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.refsha.outputs.value }}
+            type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }}-${{ steps.refsha.outputs.value }}
           cache-to: |
             type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:buildcache-${{ steps.targettag.outputs.value }},mode=max
           secrets: |
