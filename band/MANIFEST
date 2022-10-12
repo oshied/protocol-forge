@@ -1,4 +1,3 @@
 /usr/local/bin/bandd
-/usr/local/bin/bandcli
 /usr/local/bin/yoda
 /usr/local/lib/band/libgo_owasm.so
