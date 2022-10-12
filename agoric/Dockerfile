@@ -13,6 +13,21 @@ WORKDIR /build_dir/packages/cosmic-swingset
 RUN make all
 
 FROM gcr.io/distroless/nodejs:16
+ARG git_repository=https://github.com/Agoric/agoric-sdk
+ARG git_version=main
+ARG name="agoric"
+ARG summary="Distroless container build for ${name}."
+LABEL description="${summary}" \
+      maintainer="cloudnull.io <kevin@cloudnull.com>" \
+      app.kubernetes.io/name="${name}" \
+      app.kubernetes.io/version="${git_version}" \
+      org.opencontainers.image.title="${name}" \
+      org.opencontainers.artifact.description="${summary}" \
+      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.authors="kevin@cloudnull.com" \
+      org.opencontainers.image.revision="${git_version}" \
+      org.opencontainers.image.source="${git_repository}" \
+      org.opencontainers.image.vendor="cloudnull.io"
 WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/packages/cosmic-swingset/bin/ag-chain-cosmos /usr/local/bin/ag-chain-cosmos
 COPY --from=BUILD /build_dir/packages/cosmic-swingset/bin/ag-nchainz /usr/local/bin/ag-nchainz
