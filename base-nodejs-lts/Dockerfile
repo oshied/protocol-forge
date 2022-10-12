@@ -8,7 +8,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt install -y nodejs
 RUN npm install --global yarn
@@ -23,7 +24,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt install -y nodejs
 RUN npm install --global yarn
@@ -38,7 +40,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
 RUN apt install -y nodejs
 RUN npm install --global yarn

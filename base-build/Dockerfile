@@ -8,7 +8,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
@@ -31,7 +32,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
@@ -54,7 +56,8 @@ LABEL description="${summary}" \
       org.opencontainers.artifact.description="${summary}" \
       org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'

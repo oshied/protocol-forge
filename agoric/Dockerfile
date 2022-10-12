@@ -27,7 +27,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \
-      org.opencontainers.image.vendor="cloudnull.io"
+      org.opencontainers.image.vendor="cloudnull.io" \
+      org.opencontainers.image.description="${summary}"
 WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/packages/cosmic-swingset/bin/ag-chain-cosmos /usr/local/bin/ag-chain-cosmos
 COPY --from=BUILD /build_dir/packages/cosmic-swingset/bin/ag-nchainz /usr/local/bin/ag-nchainz
