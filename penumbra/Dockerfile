@@ -12,6 +12,21 @@ RUN cargo build --release --bin pd
 RUN cargo build --release --bin pcli
 
 FROM gcr.io/distroless/base-debian11:latest
+ARG git_repository=https://github.com/penumbra-zone/penumbra
+ARG git_version=main
+ARG name="penumbra"
+ARG summary="Distroless container build for ${name}."
+LABEL description="${summary}" \
+      maintainer="cloudnull.io <kevin@cloudnull.com>" \
+      app.kubernetes.io/name="${name}" \
+      app.kubernetes.io/version="${git_version}" \
+      org.opencontainers.image.title="${name}" \
+      org.opencontainers.artifact.description="${summary}" \
+      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.authors="kevin@cloudnull.com" \
+      org.opencontainers.image.revision="${git_version}" \
+      org.opencontainers.image.source="${git_repository}" \
+      org.opencontainers.image.vendor="cloudnull.io"
 WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/target/release/pd /usr/local/bin/pd
 COPY --from=BUILD /build_dir/target/release/pcli /usr/local/bin/pcli
