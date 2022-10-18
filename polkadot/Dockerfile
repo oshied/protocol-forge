@@ -2,6 +2,8 @@ FROM cloudnull/base-rustup:bionic as BUILD
 ARG git_repository=https://github.com/paritytech/polkadot
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protoc-21.7-linux-x86_64.zip
+RUN unzip protoc-21.7-linux-x86_64.zip -d /usr/local
 WORKDIR /build_dir
 RUN /root/.cargo/bin/rustup update nightly
 RUN /root/.cargo/bin/rustup update stable
