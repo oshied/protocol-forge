@@ -20,7 +20,7 @@ RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libb
                                  libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
                                  g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
                                  zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip
+                                 libusb-dev libusb-1.0-0-dev unzip rsync
 
 FROM ubuntu:20.04 as focal
 ARG name="base-build"
@@ -44,7 +44,7 @@ RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libb
                                  libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
                                  g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
                                  zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip
+                                 libusb-dev libusb-1.0-0-dev unzip rsync
 
 FROM ubuntu:22.04 as jammy
 ARG name="base-build"
@@ -66,4 +66,4 @@ RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libb
                                  libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
                                  g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
                                  zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip
+                                 libusb-dev libusb-1.0-0-dev unzip rsync
