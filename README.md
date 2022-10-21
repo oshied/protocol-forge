@@ -22,6 +22,7 @@ The directory structure is simple
     ├── VERSION
     ├── TARGETS
     ├── MANIFEST
+    ├── RUNNER
     └── README.md
 ```
 
@@ -55,6 +56,13 @@ time push the built image to our registry.
 > Items in the `MANIFEST` file are extracted from the container image and
   pushed to our public S3 bucket. Items in the MANIFEST file follow the
   in container PATH. The base name will be extracted.
+
+> Items in the `RUNNER` file (optional) are used to define the build runners
+  when executing jobs in github-actions. If there's a specific protocol that
+  needs a custom runner, or just something different from the default
+  **ubuntu-latest**, this file is used to determine the job placement. It is
+  also possible to use this file to instruct a protocol to build on multiple
+  runners, runners are defined one per-line.
 
 We use the following format to push extracted build files.
 

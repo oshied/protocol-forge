@@ -30,6 +30,13 @@ def main():
                 with open(manifest_file, encoding="utf-8") as f:
                     item["manifest"] = " ".join([i.strip() for i in f.readlines() if i])
 
+            runner_file = os.path.join(path, "RUNNER")
+            if os.path.exists(runner_file):
+                with open(runner_file, encoding="utf-8") as f:
+                    item["runner"] = [i.strip() for i in f.readlines() if i]
+            else:
+                item["runner"] = ["ubuntu-latest"]
+
             targets_file = os.path.join(path, "TARGETS")
             if os.path.exists(targets_file):
                 with open(targets_file, encoding="utf-8") as f:
