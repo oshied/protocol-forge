@@ -4,6 +4,41 @@ if [[ -d "/usr/local/lib/REPLACE_NAME" ]]; then
   mkdir -p /etc/ld.so.conf.d
   echo "/usr/local/lib/REPLACE_NAME" | tee "/etc/ld.so.conf.d/REPLACE_NAME.conf"
   if [[ -e /usr/sbin/ldconfig ]]; then
-    /usr/sbin/ldconfig -v
+    /usr/sbin/ldconfig
   fi
 fi
+
+mkdir -p "/etc/systemd/system/REPLACE_NAME.service.d"
+
+cat > "/etc/systemd/system/REPLACE_NAME.service" <<EOF
+[Unit]
+Description=Container REPLACE_NAME
+Documentation=https://github.com/cloudnull/protocol-builds
+Documentation=https://cloudnull.io
+After=systemd-udev-settle.service
+Wants=systemd-udev-settle.service
+
+[Service]
+EnvironmentFile=-/etc/default/REPLACE_NAME
+ExecStart=/usr/local/bin/REPLACE_NAME
+KillMode=mixed
+Restart=always
+RestartSec=3
+LimitNOFILE=infinity
+CPUAccounting=true
+IOAccounting=true
+MemoryAccounting=true
+TasksAccounting=true
+Slice=REPLACE_NAME.slice
+Delegate=yes
+TasksMax=16384
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+mkdir -p "/etc/default"
+
+touch "/etc/default/REPLACE_NAME"
+
+/usr/bin/systemctl daemon-reload
