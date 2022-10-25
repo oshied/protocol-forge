@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [[ -d "/usr/local/lib/REPLACE_NAME" ]]; then
+  mkdir -p /etc/ld.so.conf.d
+  echo "/usr/local/lib/REPLACE_NAME" | tee "/etc/ld.so.conf.d/REPLACE_NAME.conf"
+  if [[ -e /usr/sbin/ldconfig ]]; then
+    /usr/sbin/ldconfig -v
+  fi
+fi
