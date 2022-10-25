@@ -5,10 +5,11 @@ export DEB_VERSION="${VERSION//[^[:digit:].-]/}"
 export BUILD_VERSION="${DEB_VERSION:-0.0.0-$VERSION}"
 export BUILD_NAME="$(basename ${PROTOCOL_NAME} | sed 's/.git//g')"
 export BUILD_ARCH="$(dpkg --print-architecture)"
+export BUILD_MAINTAINER="${BUILD_MAINTAINER:-'Kevin Carter <kevin@cloudnull.com>'}"
 
-mkdir /mnt/DEBIAN
+mkdir -p /mnt/DEBIAN
 for item in control postinst postrm; do
-  sed -e "s/REPLACE_NAME/${BUILD_NAME}/g" -e "s/REPLACE_VERSION/${BUILD_VERSION}/g" "/dpgk/DEBIAN/${item}" > "/mnt/DEBIAN/${item}"
+  envsubst < "/dpgk/DEBIAN/${item}" > "/mnt/DEBIAN/${item}"
 done
 
 chmod +x /mnt/DEBIAN/postinst
