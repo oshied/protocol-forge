@@ -145,6 +145,8 @@ jobs:
           for FILE_NAME in ${{ matrix.manifest }}; do
             BASE_FILE_NAME="$(basename ${FILE_NAME})"
             docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
+            mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
+            docker cp ${CONTAINER}:${FILE_NAME} /tmp/deb/${FILE_NAME}
           done
       - name: Upload binary artifacts
         if: ${{ github.event_name != 'push' }}
@@ -152,5 +154,26 @@ jobs:
         with:
           name: binary-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
           path: /tmp/${{ matrix.base }}*
+      - name: Build deb
+        id: deb_build
+        run: |
+          if [[ -d "/tmp/deb" ]]; then
+            apt update && apt install -y dpkg
+            echo "value=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
+            source /etc/os-release
+            docker run -ti --volume /tmp/deb:/packages \
+                          --volume .github/bin:/srv \
+                          --volume /tmp/${{ matrix.base }}:/mnt \
+                          --env CONTAINER_TAG='${{ matrix.version }}' \
+                          --env PROTOCOL_NAME='${{ matrix.base }}' \
+                          cloudnull/base-dpkg:${ID} \
+                          /srv/build-deb.sh
+          fi
+      - name: Upload deb artifacts
+        uses: actions/upload-artifact@v2
+        if: success() && steps.deb_build.outputs.value != ''
+        with:
+          name: deb-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
+          path: /tmp/deb/${{ matrix.base }}_${{ matrix.version }}_${{ steps.deb_build.outputs.value }}.deb
 
-      # PUSH extracted binaries to CDN
+      # PUSH extracted binaries/deb to CDN
