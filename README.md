@@ -188,3 +188,45 @@ docker run -t --volume /tmp/packages:/packages:rw \
               cloudnull/base-dpkg:jammy \
               /srv/build-deb.sh
 ```
+
+The packages created by this repo will install the protocol binaries,
+any required libraries, create a protocol specific user, touches a
+defaults file, and generates a systemd service unit.
+
+To use the systemd service unit, it is expected that the deployer
+uses the defaults file for any and all environment variables needed
+to be passed through to the protocol when running as a daemon. The
+defaults file can be found at `/etc/defaults/PROTOCOL_NAME`.
+
+Additionally, the default `ExecStart` isn't intended to be fully complete
+out of the box. To customize the `ExecStart`, or any other systemd parameter,
+create an override file in `/etc/systemd/system/PROTOCOL_NAME.service.d/`.
+
+For example to change the `ExecStart` call
+
+``` conf
+cat > /etc/systemd/system/PROTOCOL_NAME.service.d/override.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=/usr/local/bin/PROTOCOL_NAME run
+EOF
+```
+
+This drop-in will wipeout the original `ExecStart` call and replace it.
+From the systemd point of view, the override configuration file is seen
+as part of the service
+
+``` shell
+systemctl status PROTOCOL_NAME
+● PROTOCOL_NAME.service - Container PROTOCOL_NAME
+     Loaded: loaded (/etc/systemd/system/PROTOCOL_NAME.service; disabled; vendor preset: enabled)
+    Drop-In: /etc/systemd/system/PROTOCOL_NAME.service.d
+             └─override.conf
+```
+
+Drop-in override configuration files can be used to change or modify
+anything within the systemd service unit file.
+
+Every protocol will have a user created with a home directory at
+`/var/lib/PROTOCOL_NAME`. This is the expected location where all of
+the service specific configuration and data will live.
