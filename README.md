@@ -6,6 +6,17 @@ the root is considered to be a container build root. If a `Dockerfile`
 is found within the sub directory, the system will return it as part
 of the matrixed deliverables.
 
+The output of this build process is simple.
+
+* A distroless container will be created containing all of the binaries
+  and libraries needed to run a given protocol
+
+* An archive containing all of the binaries and libraries needed to run
+  a given protocol
+
+* A Debian package which will install binaries, libraries, and service
+  units for a given protocol.
+
 When building / iterating on container images, the `VERSION` file is
 used to define the "tag" when a container image is built.
 
@@ -139,4 +150,41 @@ done
 
 # Remove the temp container now that we're done with it
 docker container rm ${CONTAINER_ID}
+```
+
+
+###### Example Build New Debian Package
+
+``` shell
+# Change into the sub directory for the build
+cd $SUB_DIRECTORY
+
+# Set container build information
+export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the version file value is stripped
+
+# Set the protocol name, in this example it is assumed the name is the same as the sub-directory
+export PROTOCOL_NAME="$(basename $(pwd))"
+
+# create a location to retrieve the new debian package
+mkdir /tmp/packages
+
+# create a location to store the binary manifest files
+mkdir /tmp/binaries
+
+# Pull the contents of the manifest from the current container version
+CONTAINER="$(docker create cloudnull/${PROTOCOL_NAME}:${CONTAINER_TAG} ${PROTOCOL_NAME})"
+for FILE_NAME in $(sed 's/[[:space:]]//g' MANIFEST | tr '\n' ' '); do
+  BASE_FILE_NAME="$(basename ${FILE_NAME})"
+  mkdir -p "/tmp/binaries/$(dirname ${FILE_NAME})"
+  docker cp ${CONTAINER}:${FILE_NAME} /tmp/binaries/${FILE_NAME}
+done
+
+# Build the debian package
+docker run -t --volume /tmp/packages:/packages:rw \
+              --volume $(pwd)/../.github/bin:/srv \
+              --volume /tmp/binaries:/mnt:rw \
+              --env CONTAINER_TAG="${CONTAINER_TAG}" \
+              --env PROTOCOL_NAME="${PROTOCOL_NAME}" \
+              cloudnull/base-dpkg:jammy \
+              /srv/build-deb.sh
 ```
