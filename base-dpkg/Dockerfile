@@ -14,6 +14,7 @@ RUN apt install -y dpkg
 WORKDIR /dpgk/DEBIAN
 COPY debian/control /dpgk/DEBIAN/control
 COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postinst
+COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postrm
 WORKDIR /packages
 
 FROM cloudnull/base-build:focal as focal
@@ -32,6 +33,7 @@ RUN apt install -y dpkg
 WORKDIR /dpgk/DEBIAN
 COPY debian/control /dpgk/DEBIAN/control
 COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postinst
+COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postrm
 WORKDIR /packages
 
 FROM cloudnull/base-build:jammy as jammy
@@ -50,4 +52,5 @@ RUN apt install -y dpkg
 WORKDIR /dpgk/DEBIAN
 COPY debian/control /dpgk/DEBIAN/control
 COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postinst
+COPY --chmod=0755 debian/postinst /dpgk/DEBIAN/postrm
 WORKDIR /packages

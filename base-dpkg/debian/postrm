@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+rm -rf "/etc/systemd/system/REPLACE_NAME.service"
+rm -rf "/etc/systemd/system/REPLACE_NAME.service.d"
+rm -rf "/etc/ld.so.conf.d/REPLACE_NAME.conf"
+rm -rf "/etc/default/REPLACE_NAME"
