@@ -4,6 +4,8 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
 WORKDIR /build_dir
 RUN make cosmovisor
+WORKDIR /build_dir/cosmovisor
+RUN if [ -f /build_dir/tools/cosmovisor/cosmovisor ]; then cp /build_dir/tools/cosmovisor/cosmovisor /build_dir/cosmovisor/cosmovisor; fi
 
 FROM gcr.io/distroless/base-debian11:latest
 ARG git_repository=https://github.com/cosmos/cosmos-sdk
