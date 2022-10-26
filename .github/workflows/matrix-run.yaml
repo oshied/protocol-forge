@@ -194,21 +194,27 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
-          tag_name: ${{ matrix.version }}-${{ github.ref }}
-          name: ${{ matrix.base }} build release for ${{ matrix.version }}
+          tag_name: ${{ matrix.version }}-${{ github.ref }}-${{ steps.targettag.outputs.value }}
+          name: ${{ matrix.base }} build release for ${{ matrix.version }} on ${{ steps.targettag.outputs.value }}
           body: |
             Build release for ${{ matrix.base }} version ${{ matrix.version }}.
 
-            Container released to Docker hub at https://hub.docker.com/layers/cloudnull/${{ matrix.base }}
+            ##### Container released to Docker hub
 
-            Here are the new container tags
+            * https://hub.docker.com/repository/docker/cloudnull/${{ matrix.base }}
 
-            * ${{ steps.targettag.outputs.value }}
-            * ${{ steps.targettag.outputs.value }}-${{ matrix.version }}
-            * ${{ steps.refsha.outputs.value }}
-            * ${{ matrix.version }}
+            ##### Container released to GHCR
 
-            Within this release you'll also find artifacts which can be used for deployments.
+            * https://github.com/cloudnull/protocol-builds/pkgs/container/${{ matrix.base }}
+
+            ###### Here are the new container tags
+
+            * `${{ steps.targettag.outputs.value }}`
+            * `${{ steps.targettag.outputs.value }}-${{ matrix.version }}`
+            * `${{ steps.refsha.outputs.value }}`
+            * `${{ matrix.version }}`
+
+            #### Within this release you'll also find artifacts which can be used for deployments.
           files: |
             /tmp/packages/*
             /tmp/${{ matrix.base }}/*
