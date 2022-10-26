@@ -187,5 +187,28 @@ jobs:
         with:
           name: deb-artifacts-${{ matrix.base }}-${{ steps.targettag.outputs.value }}
           path: /tmp/packages/*.deb
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event.pull_request.merged == true }}
+        with:
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+          tag_name: ${{ matrix.version }}
+          name: ${{ matrix.base }} build release for ${{ matrix.version }}
+          body: |
+            Build release for ${{ matrix.base }} version ${{ matrix.version }}.
 
-      # PUSH extracted binaries/deb to CDN
+            Container released to Docker hub at https://hub.docker.com/layers/cloudnull/${{ matrix.base }}
+
+            Here are the new container tags
+
+            * ${{ steps.targettag.outputs.value }}
+            * ${{ steps.targettag.outputs.value }}-${{ matrix.version }}
+            * ${{ steps.refsha.outputs.value }}
+            * ${{ matrix.version }}
+
+            Within this release you'll also find artifacts which can be used for deployments.
+          files: |
+            /tmp/packages/*
+            /tmp/${{ matrix.base }}/*
