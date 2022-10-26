@@ -164,7 +164,7 @@ jobs:
             sudo apt update && sudo apt install -y dpkg
             echo "value=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
             source /etc/os-release
-            mkdir /tmp/packages
+            mkdir -p /tmp/packages
             docker run -t --volume /tmp/packages:/packages:rw \
                           --volume $(pwd)/.github/bin:/srv \
                           --volume /tmp/deb:/mnt:rw \
@@ -194,7 +194,7 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
-          tag_name: ${{ matrix.version }}-${{ github.ref }}-${{ steps.targettag.outputs.value }}
+          tag_name: ${{ matrix.version }}-${{ steps.refsha.outputs.value }}
           name: ${{ matrix.base }} build release for ${{ matrix.version }} on ${{ steps.targettag.outputs.value }}
           body: |
             Build release for ${{ matrix.base }} version ${{ matrix.version }}.
