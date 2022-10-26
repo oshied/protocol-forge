@@ -170,6 +170,7 @@ jobs:
                           --volume /tmp/deb:/mnt:rw \
                           --env CONTAINER_TAG='${{ matrix.version }}' \
                           --env PROTOCOL_NAME='${{ matrix.base }}' \
+                          --env BUILD_EXEC="$(echo '${{ matrix.manifest }}' | awk '{print $1}')" \
                           cloudnull/base-dpkg:${VERSION_CODENAME} \
                           /srv/build-deb.sh
             find /tmp/deb

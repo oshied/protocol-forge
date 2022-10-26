@@ -165,6 +165,13 @@ export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the ver
 # Set the protocol name, in this example it is assumed the name is the same as the sub-directory
 export PROTOCOL_NAME="$(basename $(pwd))"
 
+# Set the build maintainer
+export BUILD_MAINTAINER="Kevin Carter <kevin@cloudnull.io>"
+
+# Set the ExecStart path. CI will set this option to the first item in the MANIFEST but you can
+# define it to be anything you want.
+export BUILD_EXEC="$(head -n 1 MANIFEST)"
+
 # create a location to retrieve the new debian package
 mkdir /tmp/packages
 
@@ -185,6 +192,8 @@ docker run -t --volume /tmp/packages:/packages:rw \
               --volume /tmp/binaries:/mnt:rw \
               --env CONTAINER_TAG="${CONTAINER_TAG}" \
               --env PROTOCOL_NAME="${PROTOCOL_NAME}" \
+              --env BUILD_EXEC="${BUILD_EXEC}" \
+              --env BUILD_MAINTAINER="${BUILD_MAINTAINER:-}" \
               cloudnull/base-dpkg:jammy \
               /srv/build-deb.sh
 ```
@@ -211,6 +220,10 @@ ExecStart=
 ExecStart=/usr/local/bin/PROTOCOL_NAME run
 EOF
 ```
+
+> While the default `ExecStart` is not intended to be used, the executable for
+  the used is the first item in within the **MANIFEST** file of a given
+  protocol.
 
 This drop-in will wipeout the original `ExecStart` call and replace it.
 From the systemd point of view, the override configuration file is seen

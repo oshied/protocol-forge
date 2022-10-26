@@ -6,6 +6,7 @@ export BUILD_VERSION="${DEB_VERSION:-0.0.0-$VERSION}"
 export BUILD_NAME="$(basename ${PROTOCOL_NAME} | sed 's/.git//g')"
 export BUILD_ARCH="$(dpkg --print-architecture)"
 export BUILD_MAINTAINER="${BUILD_MAINTAINER:-'Kevin Carter <kevin@cloudnull.com>'}"
+export BUILD_EXEC="${BUILD_EXEC:-}"
 
 mkdir -p /mnt/DEBIAN
 for item in control postinst postrm; do
