@@ -189,7 +189,7 @@ jobs:
           path: /tmp/packages/*.deb
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: ${{ github.event_name != 'push' }}
+        if: ${{ github.event_name == 'push' }}
         with:
           draft: false
           prerelease: false
