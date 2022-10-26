@@ -2,7 +2,11 @@
 
 export VERSION="${CONTAINER_TAG}"
 export DEB_VERSION="${VERSION//[^[:digit:].-]/}"
-export BUILD_VERSION="${DEB_VERSION:-0.0.0-$VERSION}"
+if [[ $DEB_VERSION =~ ^[[:digit:]] ]]; then
+  export BUILD_VERSION="${DEB_VERSION}"
+else
+  export BUILD_VERSION="0-${VERSION}"
+fi
 export BUILD_NAME="$(basename ${PROTOCOL_NAME} | sed 's/.git//g')"
 export BUILD_ARCH="$(dpkg --print-architecture)"
 export BUILD_MAINTAINER="${BUILD_MAINTAINER:-'Kevin Carter <kevin@cloudnull.com>'}"
