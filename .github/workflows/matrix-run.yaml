@@ -189,12 +189,12 @@ jobs:
           path: /tmp/packages/*.deb
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: github.event.pull_request.merged == true
+        if: ${{ github.event_name != 'push' }}
         with:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
-          tag_name: ${{ matrix.version }}
+          tag_name: ${{ matrix.version }}-${{ github.ref }}
           name: ${{ matrix.base }} build release for ${{ matrix.version }}
           body: |
             Build release for ${{ matrix.base }} version ${{ matrix.version }}.
