@@ -194,7 +194,7 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: false
-          tag_name: ${{ matrix.version }}-${{ github.ref }}-${{ steps.targettag.outputs.value }}
+          tag_name: ${{ matrix.version }}-${{ steps.refsha.outputs.value }}
           name: ${{ matrix.base }} build release for ${{ matrix.version }} on ${{ steps.targettag.outputs.value }}
           body: |
             Build release for ${{ matrix.base }} version ${{ matrix.version }}.
