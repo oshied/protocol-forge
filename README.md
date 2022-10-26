@@ -165,7 +165,7 @@ export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the ver
 # Set the protocol name, in this example it is assumed the name is the same as the sub-directory
 export PROTOCOL_NAME="$(basename $(pwd))"
 
-# Set the build maintainer
+# Set the build maintainer. If you build a package, claim credit for it.
 export BUILD_MAINTAINER="Kevin Carter <kevin@cloudnull.io>"
 
 # Set the ExecStart path. CI will set this option to the first item in the MANIFEST but you can
@@ -193,7 +193,7 @@ docker run -t --volume /tmp/packages:/packages:rw \
               --env CONTAINER_TAG="${CONTAINER_TAG}" \
               --env PROTOCOL_NAME="${PROTOCOL_NAME}" \
               --env BUILD_EXEC="${BUILD_EXEC}" \
-              --env BUILD_MAINTAINER="${BUILD_MAINTAINER:-}" \
+              --env BUILD_MAINTAINER="${BUILD_MAINTAINER}" \
               cloudnull/base-dpkg:jammy \
               /srv/build-deb.sh
 ```
