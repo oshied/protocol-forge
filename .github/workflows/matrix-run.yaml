@@ -189,7 +189,7 @@ jobs:
           path: /tmp/packages/*.deb
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: ${{ github.event.pull_request.merged == true }}
+        if: github.event.pull_request.merged == true
         with:
           draft: false
           prerelease: false
