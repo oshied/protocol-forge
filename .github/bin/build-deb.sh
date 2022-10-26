@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export VERSION="${CONTAINER_TAG}"
-export DEB_VERSION="${VERSION//[^[:digit:].-]/}"
+export DEB_VERSION="${VERSION//[^[:digit:].]/}"
 if [[ $DEB_VERSION =~ ^[[:digit:]] ]]; then
   export BUILD_VERSION="${DEB_VERSION}"
 else
