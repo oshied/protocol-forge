@@ -218,3 +218,7 @@ jobs:
           files: |
             /tmp/packages/*
             /tmp/${{ matrix.base }}/*
+      - name: Cleanup
+        run: |
+          rm -rf /tmp/packages
+          rm -rf "/tmp/${{ matrix.base }}"
