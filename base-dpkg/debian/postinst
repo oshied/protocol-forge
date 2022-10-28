@@ -22,7 +22,7 @@ mkdir -p "/etc/systemd/system/${BUILD_NAME}.service.d"
 cat > "/etc/systemd/system/${BUILD_NAME}.service" <<EOF
 [Unit]
 Description=Container ${BUILD_NAME}
-Documentation=https://github.com/cloudnull/protocol-builds
+Documentation=https://github.com/oshied/protocol-forge
 Documentation=https://cloudnull.io
 After=systemd-udev-settle.service
 Wants=systemd-udev-settle.service

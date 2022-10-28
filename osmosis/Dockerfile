@@ -1,4 +1,4 @@
-FROM cloudnull/base-go1.19:bionic as BUILD
+FROM ghcr.io/oshied/base-go1.19:bionic as BUILD
 ARG git_repository=https://github.com/osmosis-labs/osmosis
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
@@ -17,7 +17,7 @@ LABEL description="${summary}" \
       app.kubernetes.io/version="${git_version}" \
       org.opencontainers.image.title="${name}" \
       org.opencontainers.artifact.description="${summary}" \
-      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.url="https://github.com/oshied/protocol-forge" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \

@@ -1,8 +1,8 @@
-FROM cloudnull/base-rocksdb:focal-v6.29.3 as BUILD_ROCKS
+FROM ghcr.io/oshied/base-rocksdb:focal-v6.29.3 as BUILD_ROCKS
 
-FROM cloudnull/base-go1.19:focal as BUILD_GO
+FROM ghcr.io/oshied/base-go1.19:focal as BUILD_GO
 
-FROM cloudnull/base-nodejs-lts:focal as BUILD
+FROM ghcr.io/oshied/base-nodejs-lts:focal as BUILD
 WORKDIR /usr/local/lib
 COPY --from=BUILD_ROCKS /usr/local/lib /usr/local/lib
 WORKDIR /usr/local/include
@@ -49,7 +49,7 @@ LABEL description="${summary}" \
       app.kubernetes.io/version="${git_version}" \
       org.opencontainers.image.title="${name}" \
       org.opencontainers.artifact.description="${summary}" \
-      org.opencontainers.image.url="https://github.com/cloudnull/protocol-builds" \
+      org.opencontainers.image.url="https://github.com/oshied/protocol-forge" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.revision="${git_version}" \
       org.opencontainers.image.source="${git_repository}" \

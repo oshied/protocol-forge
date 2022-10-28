@@ -166,7 +166,7 @@ export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the ver
 export PROTOCOL_NAME="$(basename $(pwd))"
 
 # Set the build maintainer. If you build a package, claim credit for it.
-export BUILD_MAINTAINER="Kevin Carter <kevin@cloudnull.io>"
+export BUILD_MAINTAINER="Kevin Carter <kevin@cloudnull.com>"
 
 # Set the ExecStart path. CI will set this option to the first item in the MANIFEST but you can
 # define it to be anything you want.
@@ -179,7 +179,7 @@ mkdir /tmp/packages
 mkdir /tmp/binaries
 
 # Pull the contents of the manifest from the current container version
-CONTAINER="$(docker create cloudnull/${PROTOCOL_NAME}:${CONTAINER_TAG} ${PROTOCOL_NAME})"
+CONTAINER="$(docker create ghcr.io/oshied/${PROTOCOL_NAME}:${CONTAINER_TAG} ${PROTOCOL_NAME})"
 for FILE_NAME in $(sed 's/[[:space:]]//g' MANIFEST | tr '\n' ' '); do
   BASE_FILE_NAME="$(basename ${FILE_NAME})"
   mkdir -p "/tmp/binaries/$(dirname ${FILE_NAME})"
@@ -194,7 +194,7 @@ docker run -t --volume /tmp/packages:/packages:rw \
               --env PROTOCOL_NAME="${PROTOCOL_NAME}" \
               --env BUILD_EXEC="${BUILD_EXEC}" \
               --env BUILD_MAINTAINER="${BUILD_MAINTAINER}" \
-              cloudnull/base-dpkg:jammy \
+              ghcr.io/oshied/base-dpkg:jammy \
               /srv/build-deb.sh
 ```
 
