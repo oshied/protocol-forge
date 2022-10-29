@@ -113,7 +113,12 @@ export CONTAINER_TAG="$(sed 's/[[:space:]]//g' VERSION)"  # Ensures that the ver
 export PROTOCOL_NAME="$(basename $(pwd))"
 
 # Run the build
-docker build --build-arg git_version=${CONTAINER_TAG} --tag ${PROTOCOL_NAME}:${CONTAINER_TAG} .
+# NOTE(cloudnull): The public GHCR repo also maintains build cache for every repository and tags it for
+#                  reproduceability.
+docker build --build-arg git_version=${CONTAINER_TAG} \
+             --tag ${PROTOCOL_NAME}:${CONTAINER_TAG} \
+             --cache-from type=registry,ref=ghcr.io/oshied/${PROTOCOL_NAME}:buildcache-target \
+             .
 ```
 
 Once the build is complete binaries can be extracted or the container can
