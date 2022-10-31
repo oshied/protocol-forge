@@ -133,6 +133,8 @@ jobs:
             mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
             cp -R ${BIN_TMP_DIR}/${BASE_FILE_NAME} /tmp/deb/${FILE_NAME}
           done
+          mkdir -p /tmp/packages
+          tar -czvf /tmp/packages/release.tgz -C ${BIN_TMP_DIR} .
       - name: Upload binary artifacts
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v2
