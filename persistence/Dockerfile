@@ -4,6 +4,7 @@ ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
 WORKDIR /build_dir
 RUN make build
+RUN cp "$(ldd /build_dir/build/persistenceCore | awk '/libwasmvm.x86_64.so/ {print $3}')" build/libwasmvm.x86_64.so
 
 FROM gcr.io/distroless/base-debian11:latest
 ARG git_repository=https://github.com/persistenceOne/persistenceCore
@@ -24,4 +25,8 @@ LABEL description="${summary}" \
       org.opencontainers.image.description="${summary}"
 WORKDIR /usr/local/bin
 COPY --from=BUILD /build_dir/build/persistenceCore /usr/local/bin/persistenceCore
+WORKDIR /usr/local/lib/persistenceOne
+COPY --from=BUILD /build_dir/build/libwasmvm.x86_64.so /usr/local/lib/persistenceOne/libwasmvm.x86_64.so
+COPY --from=BUILD /lib/x86_64-linux-gnu/libgcc_s.so.1 /usr/local/lib/persistenceOne/libgcc_s.so.1
+ENV LD_LIBRARY_PATH=/usr/local/lib/persistenceOne
 ENTRYPOINT ["/usr/local/bin/persistenceCore"]
