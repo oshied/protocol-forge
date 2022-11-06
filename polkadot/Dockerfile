@@ -5,10 +5,9 @@ RUN git clone --recursive --branch $git_version $git_repository /build_dir
 RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v21.7/protoc-21.7-linux-x86_64.zip
 RUN unzip protoc-21.7-linux-x86_64.zip -d /usr/local
 WORKDIR /build_dir
-RUN /root/.cargo/bin/rustup update nightly
-RUN /root/.cargo/bin/rustup update stable
-RUN /root/.cargo/bin/rustup target add wasm32-unknown-unknown --toolchain nightly
-RUN /root/.cargo/bin/cargo +nightly install --git https://github.com/alexcrichton/wasm-gc --force
+RUN /root/.cargo/bin/rustup update
+ENV PATH=$PATH:/root/.cargo/bin
+RUN rustup toolchain remove nightly && /build_dir/scripts/init.sh
 RUN /root/.cargo/bin/cargo build --release
 
 FROM gcr.io/distroless/base-debian11:latest
