@@ -11,7 +11,7 @@ LABEL description="${summary}" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-RUN export PATH="$PATH:/root/.cargo/bin"
+ENV PATH="$PATH:/root/.cargo/bin"
 
 FROM ghcr.io/oshied/base-build:focal as focal
 ARG name="base-rustup"
@@ -26,7 +26,7 @@ LABEL description="${summary}" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-RUN export PATH="$PATH:/root/.cargo/bin"
+ENV PATH="$PATH:/root/.cargo/bin"
 
 FROM ghcr.io/oshied/base-build:jammy as jammy
 ARG name="base-rustup"
@@ -41,4 +41,4 @@ LABEL description="${summary}" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-RUN export PATH="$PATH:/root/.cargo/bin"
+ENV PATH="$PATH:/root/.cargo/bin"
