@@ -27,7 +27,7 @@ jobs:
           python-version: '3.10'
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@v32
+        uses: tj-actions/changed-files@v34
       - name: Set notification matrix
         id: matrix
         run: |
