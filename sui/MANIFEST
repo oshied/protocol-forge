@@ -1,2 +1,5 @@
 /usr/local/bin/sui
 /usr/local/bin/sui-node
+/usr/local/bin/sui-tool
+/usr/local/bin/sui-faucet
+/usr/local/bin/rpc-server
