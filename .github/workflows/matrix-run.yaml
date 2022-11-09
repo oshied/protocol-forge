@@ -1,5 +1,9 @@
 name: Build images
 
+permissions:
+  packages: write
+  contents: write
+
 on:
   pull_request:
     branches:
@@ -34,8 +38,6 @@ jobs:
           echo "matrix=$(.github/bin/find-docker-files.py ${{ steps.changed-files.outputs.all_changed_files }})" >> $GITHUB_OUTPUT
 
   build:
-    permissions:
-      packages: write
     environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
     needs:
       - setup
@@ -85,12 +87,15 @@ jobs:
             fi
           fi
           echo "value=${REF_SHA}" >> $GITHUB_OUTPUT
+      - name: Set reference sha
+        run: |
+          mkdir -p /tmp/.buildx-cache
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v3
         with:
           context: "{{defaultContext}}:${{ matrix.base }}"
-          push: ${{ github.event_name == 'push' }}
+          push: false
           file: "Dockerfile"
           target: "${{ matrix.target }}"
           tags: |
@@ -102,90 +107,28 @@ jobs:
           build-args: |
             git_version=${{ matrix.git_version }}
           cache-from: |
-            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) }}
-            type=gha
+            ${{ secrets.TEST != '' &&
+                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, matrix.version) ||
+                format('type=local,src=/tmp/.buildx-cache') }}
           cache-to: |
-            ${{ github.event_name == 'push' &&
-                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) ||
-                format('type=gha,mode=max') }}
+            ${{ secrets.TEST != '' &&
+                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, matrix.version) ||
+                format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN != '' && secrets.GITHUB_TOKEN || 'not-a-token' }}
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          outputs: ${{ github.event_name == 'push' && format('{0}={1}', 'type', 'registry') || format('type=docker,dest=/tmp/{0}.tar', matrix.base) }}
+      - name: Upload artifact
+        if: ${{ github.event_name != 'push' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.base }}
+          path: /tmp/${{ matrix.base }}.tar
 
   extract_artifacts:
     environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
     needs:
       - setup
       - build
-    runs-on: "${{ matrix.runner }}"
-    timeout-minutes: 240
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-    strategy:
-      fail-fast: false
-      max-parallel: 10
-      matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
-    if: ${{ needs.build.outputs.manifest != '' }}
-    steps:
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: network=host
-      - uses: actions/cache@v3
-        with:
-          path: |
-            /tmp/${{ matrix.base }}
-            /tmp/archive
-            /tmp/deb
-            /tmp/packages
-          key: ${{ matrix.base }}-${{ needs.build.outputs.combined_tag }}-artifacts
-      - name: Build and push local
-        id: docker_build_local
-        uses: docker/build-push-action@v3
-        if: ${{ github.event_name != 'push' }}
-        with:
-          context: "{{defaultContext}}:${{ matrix.base }}"
-          push: true
-          file: "Dockerfile"
-          target: "${{ matrix.target }}"
-          tags: |
-            localhost:5000/${{ matrix.base }}:testing
-          build-args: |
-            git_version=${{ matrix.git_version }}
-          cache-from: |
-            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) }}
-            type=gha
-      - name: Extract and push binaries
-        run: |
-          CONTAINER_TAG="${{ github.event_name == 'push' && format('ghcr.io/{0}/{1}:{2}', github.repository_owner, matrix.base, needs.build.outputs.combined_tag) || format('localhost:5000/{0}:testing', matrix.base) }}"
-          CONTAINER="$(docker create ${CONTAINER_TAG})"
-          BIN_TMP_DIR="/tmp/${{ matrix.base }}"
-          mkdir -p "${BIN_TMP_DIR}"
-          for FILE_NAME in ${{ matrix.manifest }}; do
-            BASE_FILE_NAME="$(basename ${FILE_NAME})"
-            docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
-            mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
-            cp -R ${BIN_TMP_DIR}/${BASE_FILE_NAME} /tmp/deb/${FILE_NAME}
-          done
-          if [ "$(ls -A $BIN_TMP_DIR)" ]; then
-            mkdir -p /tmp/archive
-            tar -czvf /tmp/archive/release.tgz -C ${BIN_TMP_DIR} .
-          fi
-      - name: Upload deb artifacts
-        uses: actions/upload-artifact@v3
-        if: success()
-        with:
-          name: release-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
-          path: /tmp/archive/release.tgz
-
-  packaging:
-    environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
-    needs:
-      - setup
-      - build
-      - extract_artifacts
     runs-on: "${{ matrix.runner }}"
     timeout-minutes: 240
     strategy:
@@ -199,14 +142,33 @@ jobs:
       - uses: docker/setup-buildx-action@v2
         with:
           driver-opts: network=host
-      - uses: actions/cache@v3
+      - name: Download artifact
+        if: ${{ github.event_name != 'push' }}
+        uses: actions/download-artifact@v3
         with:
-          path: |
-            /tmp/${{ matrix.base }}
-            /tmp/archive
-            /tmp/deb
-            /tmp/packages
-          key: ${{ matrix.base }}-${{ needs.build.outputs.combined_tag }}-artifacts
+          name: ${{ matrix.base }}
+          path: /tmp
+      - name: Load image
+        if: ${{ github.event_name != 'push' }}
+        run: |
+          docker load --input /tmp/${{ matrix.base }}.tar
+          docker image ls -a
+      - name: Extract and push binaries
+        run: |
+          CONTAINER_TAG="${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, matrix.version) }}"
+          CONTAINER="$(docker create ${CONTAINER_TAG})"
+          BIN_TMP_DIR="/tmp/${{ matrix.base }}"
+          mkdir -p "${BIN_TMP_DIR}"
+          for FILE_NAME in ${{ matrix.manifest }}; do
+            BASE_FILE_NAME="$(basename ${FILE_NAME})"
+            docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
+            mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
+            cp -R ${BIN_TMP_DIR}/${BASE_FILE_NAME} /tmp/deb/${FILE_NAME}
+          done
+          if [ "$(ls -A $BIN_TMP_DIR)" ]; then
+            mkdir -p /tmp/archive
+            tar -czvf /tmp/archive/release.tgz -C ${BIN_TMP_DIR} .
+          fi
       - name: Build deb
         id: deb_build
         run: |
@@ -226,43 +188,28 @@ jobs:
                           /srv/build-deb.sh
             find /tmp/deb
           fi
+      - name: Upload deb artifacts
+        uses: actions/upload-artifact@v3
+        if: success() && steps.deb_build.outputs.value != '' && github.event_name != 'push'
+        with:
+          name: deb-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
+          path: /tmp/packages/*.deb
       - name: Upload packaging failure artifacts
         uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: deb-failure-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
           path: /tmp/deb/*
-      - name: Upload deb artifacts
-        uses: actions/upload-artifact@v3
-        if: success() && steps.deb_build.outputs.value != ''
-        with:
-          name: deb-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
-          path: /tmp/packages/*.deb
-
-  release:
-    environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
-    needs:
-      - setup
-      - build
-      - extract_artifacts
-      - packaging
-    runs-on: "${{ matrix.runner }}"
-    timeout-minutes: 240
-    strategy:
-      fail-fast: false
-      max-parallel: 10
-      matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
-    if: ${{ github.event_name == 'push' && needs.build.outputs.manifest != '' }}
-    steps:
-      - uses: actions/cache@v3
-        with:
-          path: |
-            /tmp/${{ matrix.base }}
-            /tmp/archive
-            /tmp/deb
-            /tmp/packages
-          key: ${{ matrix.base }}-${{ needs.build.outputs.combined_tag }}-artifacts
+      - name: Merge artifacts
+        run: |
+          mkdir -p /tmp/artifacts
+          for item in "/tmp/${{ matrix.base }}" /tmp/archive /tmp/packages; do
+            if [ -d "${item}" ]; then
+              cp -R ${item}/* /tmp/artifacts/
+            fi
+          done
       - name: Create Release
+        if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
         with:
           draft: false
@@ -286,12 +233,11 @@ jobs:
 
             #### Within this release you'll also find artifacts which can be used for deployments.
           files: |
-            /tmp/archive/*
-            /tmp/packages/*
-            /tmp/${{ matrix.base }}/*
+            /tmp/artifacts/*
       - name: Cleanup
         run: |
-          rm -rf /tmp/${{ matrix.base }}
-          rm -rf /tmp/archive
-          rm -rf /tmp/deb
-          rm -rf /tmp/packages
+          sudo rm -rf "/tmp/${{ matrix.base }}"
+          sudo rm -rf /tmp/archive
+          sudo rm -rf /tmp/artifacts
+          sudo rm -rf /tmp/deb
+          sudo rm -rf /tmp/packages
