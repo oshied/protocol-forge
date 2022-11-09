@@ -3,6 +3,8 @@ ARG git_repository=https://github.com/ovrclk/akash
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
 WORKDIR /build_dir
+# NOTE: work around until https://github.com/ovrclk/akash/pull/1714 is merged
+RUN sed -i 's@"$(AKASH_DEVCACHE_BIN):$(AKASH_DEVCACHE_NODE_BIN):$(PATH)"@$(AKASH_DEVCACHE_BIN):$(AKASH_DEVCACHE_NODE_BIN):$(PATH)@' make/init.mk
 RUN make deps-install
 RUN make install
 
