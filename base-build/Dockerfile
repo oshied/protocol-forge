@@ -16,11 +16,11 @@ RUN git config --global --add safe.directory '*'
 RUN git config --global submodule.recurse true
 RUN curl https://apt.kitware.com/kitware-archive.sh -sSf | sh
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
-RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libboost-all-dev libsnappy-dev \
-                                 libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
-                                 g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
-                                 zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip rsync direnv
+RUN apt update && apt install -y apt-utils autoconf automake build-essential clang clang-format cmake \
+                                 direnv g++-9 gcc-9 git libboost-all-dev libbz2-dev libclang-dev libgflags-dev \
+                                 libgmp3-dev liblz4-dev libsnappy-dev libssl-dev libtool libudev-dev \
+                                 libusb-1.0-0-dev libusb-dev libzstd-dev llvm make pkg-config python3-dev \
+                                 rsync software-properties-common sudo unzip zlib1g-dev
 
 FROM ubuntu:20.04 as focal
 ARG name="base-build"
@@ -40,11 +40,11 @@ RUN git config --global --add safe.directory '*'
 RUN git config --global submodule.recurse true
 RUN curl https://apt.kitware.com/kitware-archive.sh -sSf | sh
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
-RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libboost-all-dev libsnappy-dev \
-                                 libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
-                                 g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
-                                 zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip rsync direnv
+RUN apt update && apt install -y apt-utils autoconf automake build-essential clang clang-format cmake \
+                                 direnv g++-9 gcc-9 git libboost-all-dev libbz2-dev libclang-dev libgflags-dev \
+                                 libgmp3-dev liblz4-dev libsnappy-dev libssl-dev libtool libudev-dev \
+                                 libusb-1.0-0-dev libusb-dev libzstd-dev llvm make pkg-config python3-dev \
+                                 rsync software-properties-common sudo unzip zlib1g-dev
 
 FROM ubuntu:22.04 as jammy
 ARG name="base-build"
@@ -62,8 +62,8 @@ ENV DEBIAN_FRONTEND="noninteractive"
 RUN apt update && apt install -y gpg wget curl git software-properties-common
 RUN git config --global --add safe.directory '*'
 RUN git config --global submodule.recurse true
-RUN apt update && apt install -y git build-essential libssl-dev libgmp3-dev libboost-all-dev libsnappy-dev \
-                                 libzstd-dev llvm libudev-dev software-properties-common python3-dev gcc-9 \
-                                 g++-9 make cmake clang clang-format autoconf automake libgflags-dev \
-                                 zlib1g-dev libbz2-dev liblz4-dev libtool pkg-config sudo apt-utils \
-                                 libusb-dev libusb-1.0-0-dev unzip rsync direnv
+RUN apt update && apt install -y apt-utils autoconf automake build-essential clang clang-format cmake \
+                                 direnv g++-9 gcc-9 git libboost-all-dev libbz2-dev libclang-dev libgflags-dev \
+                                 libgmp3-dev liblz4-dev libsnappy-dev libssl-dev libtool libudev-dev \
+                                 libusb-1.0-0-dev libusb-dev libzstd-dev llvm make pkg-config python3-dev \
+                                 rsync software-properties-common sudo unzip zlib1g-dev
