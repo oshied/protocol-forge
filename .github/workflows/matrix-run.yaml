@@ -155,11 +155,11 @@ jobs:
           build-args: |
             git_version=${{ matrix.git_version }}
           cache-from: |
-            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) }}
+            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, needs.build.outputs.refsha) }}
             type=gha
       - name: Extract and push binaries
         run: |
-          CONTAINER_TAG="${{ github.event_name == 'push' && format('ghcr.io/{0}/{1}:{2}', github.repository_owner, matrix.base, needs.build.outputs.combined_tag) || format('localhost:5000/{0}:testing', matrix.base) }}"
+          CONTAINER_TAG="${{ github.event_name == 'push' && format('ghcr.io/{0}/{1}:{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, matrix.version) || format('localhost:5000/{0}:testing', matrix.base) }}"
           CONTAINER="$(docker create ${CONTAINER_TAG})"
           BIN_TMP_DIR="/tmp/${{ matrix.base }}"
           mkdir -p "${BIN_TMP_DIR}"
