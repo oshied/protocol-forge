@@ -1,5 +1,8 @@
 name: Build images
 
+permissions:
+  packages: write
+
 on:
   pull_request:
     branches:
@@ -34,8 +37,6 @@ jobs:
           echo "matrix=$(.github/bin/find-docker-files.py ${{ steps.changed-files.outputs.all_changed_files }})" >> $GITHUB_OUTPUT
 
   build:
-    permissions:
-      packages: write
     environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
     needs:
       - setup
@@ -85,6 +86,9 @@ jobs:
             fi
           fi
           echo "value=${REF_SHA}" >> $GITHUB_OUTPUT
+      - name: Set reference sha
+        run: |
+          mkdir -p /tmp/.buildx-cache
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v3
@@ -102,14 +106,22 @@ jobs:
           build-args: |
             git_version=${{ matrix.git_version }}
           cache-from: |
-            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) }}
-            type=gha
-          cache-to: |
-            ${{ github.event_name == 'push' &&
+            ${{ secrets.TEST != '' &&
                 format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) ||
-                format('type=gha,mode=max') }}
+                format('type=local,src=/tmp/.buildx-cache') }}
+          cache-to: |
+            ${{ secrets.TEST != '' &&
+                format('type=`registry`,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) ||
+                format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
           secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN != '' && secrets.GITHUB_TOKEN || 'not-a-token' }}
+            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          outputs: type=docker,dest=/tmp/${{ matrix.base }}.tar
+      - name: Upload artifact
+        if: ${{ github.event_name != 'push' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.base }}
+          path: /tmp/${{ matrix.base }}.tar
 
   extract_artifacts:
     environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
@@ -118,11 +130,6 @@ jobs:
       - build
     runs-on: "${{ matrix.runner }}"
     timeout-minutes: 240
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     strategy:
       fail-fast: false
       max-parallel: 10
@@ -133,6 +140,17 @@ jobs:
       - uses: docker/setup-buildx-action@v2
         with:
           driver-opts: network=host
+      - name: Download artifact
+        if: ${{ github.event_name != 'push' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.base }}
+          path: /tmp
+      - name: Load image
+        if: ${{ github.event_name != 'push' }}
+        run: |
+          docker load --input /tmp/${{ matrix.base }}.tar
+          docker image ls -a
       - uses: actions/cache@v3
         with:
           path: |
@@ -141,25 +159,9 @@ jobs:
             /tmp/deb
             /tmp/packages
           key: ${{ matrix.base }}-${{ needs.build.outputs.combined_tag }}-artifacts
-      - name: Build and push local
-        id: docker_build_local
-        uses: docker/build-push-action@v3
-        if: ${{ github.event_name != 'push' }}
-        with:
-          context: "{{defaultContext}}:${{ matrix.base }}"
-          push: true
-          file: "Dockerfile"
-          target: "${{ matrix.target }}"
-          tags: |
-            localhost:5000/${{ matrix.base }}:testing
-          build-args: |
-            git_version=${{ matrix.git_version }}
-          cache-from: |
-            ${{ format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, needs.build.outputs.refsha) }}
-            type=gha
       - name: Extract and push binaries
         run: |
-          CONTAINER_TAG="${{ github.event_name == 'push' && format('ghcr.io/{0}/{1}:{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, matrix.version) || format('localhost:5000/{0}:testing', matrix.base) }}"
+          CONTAINER_TAG="${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, matrix.version) }}"
           CONTAINER="$(docker create ${CONTAINER_TAG})"
           BIN_TMP_DIR="/tmp/${{ matrix.base }}"
           mkdir -p "${BIN_TMP_DIR}"
