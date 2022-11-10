@@ -115,7 +115,7 @@ jobs:
                 format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          outputs: type=docker,dest=/tmp/${{ matrix.base }}.tar
+          outputs: ${{ github.event_name == 'push' && '' || format('type=docker,dest=/tmp/{0}.tar', matrix.base) }}
       - name: Upload artifact
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v3
