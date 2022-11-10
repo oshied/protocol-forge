@@ -111,7 +111,7 @@ jobs:
                 format('type=local,src=/tmp/.buildx-cache') }}
           cache-to: |
             ${{ secrets.TEST != '' &&
-                format('type=`registry`,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) ||
+                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, steps.refsha.outputs.value) ||
                 format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
