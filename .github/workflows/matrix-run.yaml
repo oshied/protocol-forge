@@ -164,7 +164,6 @@ jobs:
             docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
             mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
             cp -R ${BIN_TMP_DIR}/${BASE_FILE_NAME} /tmp/deb/${FILE_NAME}
-            tar -czvf /tmp/archive/deb.tgz -C /tmp/deb .
           done
           if [ "$(ls -A $BIN_TMP_DIR)" ]; then
             mkdir -p /tmp/archive
@@ -201,6 +200,14 @@ jobs:
         with:
           name: deb-failure-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
           path: /tmp/deb/*
+      - name: Merge artifacts
+        run: |
+          mkdir -p /tmp/artifacts
+          for item in "/tmp/${{ matrix.base }}" /tmp/archive /tmp/packages; do
+            if [ -d "${item}" ]; then
+              cp -R ${item}/* /tmp/artifacts/
+            fi
+          done
       - name: Create Release
         if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
