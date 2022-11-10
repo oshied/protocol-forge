@@ -94,7 +94,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: "{{defaultContext}}:${{ matrix.base }}"
-          push: ${{ github.event_name == 'push' }}
+          push: false
           file: "Dockerfile"
           target: "${{ matrix.target }}"
           tags: |
@@ -115,7 +115,7 @@ jobs:
                 format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
           secrets: |
             GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          outputs: ${{ github.event_name == 'push' && '' || format('type=docker,dest=/tmp/{0}.tar', matrix.base) }}
+          outputs: ${{ github.event_name == 'push' && 'type=registry' || format('type=docker,dest=/tmp/{0}.tar', matrix.base) }}
       - name: Upload artifact
         if: ${{ github.event_name != 'push' }}
         uses: actions/upload-artifact@v3
