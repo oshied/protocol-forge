@@ -264,6 +264,14 @@ jobs:
             /tmp/deb
             /tmp/packages
           key: ${{ matrix.base }}-${{ needs.build.outputs.combined_tag }}-artifacts
+      - name: Merge artifacts
+        run: |
+          mkdir -p /tmp/artifacts
+          for item in "/tmp/${{ matrix.base }}" /tmp/archive /tmp/deb /tmp/packages; do
+            if [ -d "${item}" ]; then
+              cp -R ${item}/* /tmp/artifacts/
+            fi
+          done
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -288,12 +296,11 @@ jobs:
 
             #### Within this release you'll also find artifacts which can be used for deployments.
           files: |
-            /tmp/archive/*
-            /tmp/packages/*
-            /tmp/${{ matrix.base }}/*
+            /tmp/artifacts/*
       - name: Cleanup
         run: |
-          rm -rf /tmp/${{ matrix.base }}
+          rm -rf "/tmp/${{ matrix.base }}"
           rm -rf /tmp/archive
+          rm -rf /tmp/artifacts
           rm -rf /tmp/deb
           rm -rf /tmp/packages
