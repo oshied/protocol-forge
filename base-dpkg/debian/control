@@ -1,6 +1,0 @@
-Package: ${BUILD_NAME}
-Version: ${BUILD_VERSION}
-Architecture: ${BUILD_ARCH}
-Maintainer: ${BUILD_MAINTAINER}
-Description: ${BUILD_NAME} blockchain service
- Runtime for ${BUILD_NAME} service

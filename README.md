@@ -11,11 +11,6 @@ The output of this build process is simple.
 * A distroless container will be created containing all of the binaries
   and libraries needed to run a given protocol
 
-* An archive containing all of the binaries and libraries needed to run
-  a given protocol
-
-* A Debian package which will install binaries, libraries, and service
-  units for a given protocol.
 
 When building / iterating on container images, the `VERSION` file is
 used to define the "tag" when a container image is built.
@@ -36,14 +31,6 @@ The directory structure is simple
     ├── RUNNER
     └── README.md
 ```
-
-## Submitting a protocol
-
-When building a new protocol make sure that the new submission is following
-the defined hierarchy. When the pull request is submitted, if the build images
-will be held for review on the `ghcr` registry. Once the submission is approved
-the image will be rebuilt using the original approved build cache and pushed to
-docker hub accordingly.
 
 ### Build Process
 
@@ -88,7 +75,7 @@ container.
 
 1. Clone this repository
 2. Change directory into the protocol based subdirectory
-3. Run docker build for the protocol
+3. Run buildah build for the protocol
 
 All container build files have constant arguments.
 

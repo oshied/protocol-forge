@@ -54,20 +54,19 @@ jobs:
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: network=host
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
+      
+      - name: Log in to Container registry
+        uses: redhat-actions/podman-login@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set manifest output
         id: manifest_output
         run: |
           echo "value=${{ matrix.manifest }}" >> $GITHUB_OUTPUT
+
       - name: Set target tag default
         id: targettag
         run: |
@@ -76,6 +75,7 @@ jobs:
             export TARGET_TAG=target
           fi
           echo "value=${TARGET_TAG}" >> $GITHUB_OUTPUT
+
       - name: Set reference sha
         id: refsha
         run: |
@@ -87,42 +87,39 @@ jobs:
             fi
           fi
           echo "value=${REF_SHA}" >> $GITHUB_OUTPUT
-      - name: Set reference sha
-        run: |
-          mkdir -p /tmp/.buildx-cache
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v3
+      
+      - name: Build OCI image
+        id: buildah_build
+        uses: redhat-actions/buildah-build@v2
         with:
-          context: "{{defaultContext}}:${{ matrix.base }}"
-          push: false
-          file: "Dockerfile"
-          target: "${{ matrix.target }}"
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:latest
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.refsha.outputs.value }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ matrix.version }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
+          containerfiles: |
+            "${{ matrix.base }}/Dockerfile"
           build-args: |
             git_version=${{ matrix.git_version }}
-          cache-from: |
-            ${{ secrets.TEST != '' &&
-                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, matrix.version) ||
-                format('type=local,src=/tmp/.buildx-cache') }}
-          cache-to: |
-            ${{ secrets.TEST != '' &&
-                format('type=registry,ref=ghcr.io/{0}/{1}:buildcache-{2}-{3}', github.repository_owner, matrix.base, steps.targettag.outputs.value, matrix.version) ||
-                format('type=local,dest=/tmp/.buildx-cache,mode=max') }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          outputs: ${{ github.event_name == 'push' && format('{0}={1}', 'type', 'registry') || format('type=docker,dest=/tmp/{0}.tar', matrix.base) }}
-      - name: Upload artifact
-        if: ${{ github.event_name != 'push' }}
-        uses: actions/upload-artifact@v3
+          oci: true
+
+      - name: Echo Outputs
+        run: |
+          echo "Image: ${{ steps.buildah_build.outputs.image }}"
+          echo "Tags: ${{ steps.buildah_build.outputs.tags }}"
+          echo "Tagged Image: ${{ steps.buildah_build.outputs.image-with-tag }}"
+
+      - name: Push to registry
+        id: image_push
+        uses: redhat-actions/push-to-registry@v2
         with:
-          name: ${{ matrix.base }}
-          path: /tmp/${{ matrix.base }}.tar
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.refsha.outputs.value }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ matrix.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }} 
 
   extract_artifacts:
     environment: ${{ github.event_name == 'push' && 'main' || 'dev' }}
@@ -138,76 +135,6 @@ jobs:
     if: ${{ needs.build.outputs.manifest != '' }}
     steps:
       - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-        with:
-          driver-opts: network=host
-      - name: Download artifact
-        if: ${{ github.event_name != 'push' }}
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ matrix.base }}
-          path: /tmp
-      - name: Load image
-        if: ${{ github.event_name != 'push' }}
-        run: |
-          docker load --input /tmp/${{ matrix.base }}.tar
-          docker image ls -a
-      - name: Extract and push binaries
-        run: |
-          CONTAINER_TAG="${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository_owner, matrix.base, needs.build.outputs.targettag, matrix.version) }}"
-          CONTAINER="$(docker create ${CONTAINER_TAG})"
-          BIN_TMP_DIR="/tmp/${{ matrix.base }}"
-          mkdir -p "${BIN_TMP_DIR}"
-          for FILE_NAME in ${{ matrix.manifest }}; do
-            BASE_FILE_NAME="$(basename ${FILE_NAME})"
-            docker cp ${CONTAINER}:${FILE_NAME} ${BIN_TMP_DIR}/${BASE_FILE_NAME}
-            mkdir -p "/tmp/deb/$(dirname ${FILE_NAME})"
-            cp -R ${BIN_TMP_DIR}/${BASE_FILE_NAME} /tmp/deb/${FILE_NAME}
-          done
-          if [ "$(ls -A $BIN_TMP_DIR)" ]; then
-            mkdir -p /tmp/archive
-            tar -czvf /tmp/archive/release.tgz -C ${BIN_TMP_DIR} .
-          fi
-      - name: Build deb
-        id: deb_build
-        run: |
-          if [[ "$(ls -A /tmp/deb)" ]]; then
-            export DEBIAN_FRONTEND="noninteractive"
-            sudo apt update && sudo apt install -y dpkg
-            echo "value=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
-            source /etc/os-release
-            mkdir -p /tmp/packages
-            docker run -t --volume /tmp/packages:/packages:rw \
-                          --volume $(pwd)/.github/bin:/srv \
-                          --volume /tmp/deb:/mnt:rw \
-                          --env CONTAINER_TAG='${{ matrix.version }}' \
-                          --env PROTOCOL_NAME='${{ matrix.base }}' \
-                          --env BUILD_EXEC="$(echo '${{ matrix.manifest }}' | awk '{print $1}')" \
-                          ghcr.io/oshied/base-dpkg:jammy \
-                          /srv/build-deb.sh
-            find /tmp/deb
-          fi
-      - name: Upload deb artifacts
-        uses: actions/upload-artifact@v3
-        if: success() && steps.deb_build.outputs.value != '' && github.event_name != 'push'
-        with:
-          name: deb-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
-          path: /tmp/packages/*.deb
-      - name: Upload packaging failure artifacts
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: deb-failure-artifacts-${{ matrix.base }}-${{ needs.build.outputs.targettag }}
-          path: /tmp/deb/*
-      - name: Merge artifacts
-        run: |
-          mkdir -p /tmp/artifacts
-          for item in "/tmp/${{ matrix.base }}" /tmp/archive /tmp/packages; do
-            if [ -d "${item}" ]; then
-              cp -R ${item}/* /tmp/artifacts/
-            fi
-          done
       - name: Create Release
         if: ${{ github.event_name == 'push' }}
         uses: softprops/action-gh-release@v1
@@ -222,7 +149,7 @@ jobs:
 
             ##### Container released to GHCR
 
-            * https://github.com/oshied/protocol-forge/pkgs/container/${{ matrix.base }}
+            * https://github.com/qwertzlbert/nextcloud-containers/pkgs/container/${{ matrix.base }}
 
             ###### Here are the new container tags
 
@@ -231,13 +158,8 @@ jobs:
             * `${{ needs.build.outputs.refsha }}`
             * `${{ matrix.version }}`
 
-            #### Within this release you'll also find artifacts which can be used for deployments.
           files: |
             /tmp/artifacts/*
       - name: Cleanup
         run: |
           sudo rm -rf "/tmp/${{ matrix.base }}"
-          sudo rm -rf /tmp/archive
-          sudo rm -rf /tmp/artifacts
-          sudo rm -rf /tmp/deb
-          sudo rm -rf /tmp/packages
