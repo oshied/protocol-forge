@@ -1,6 +1,6 @@
 FROM ghcr.io/oshied/base-build:bionic as bionic
-ARG name="base-go1.20"
-ARG summary="Base build image for go 1.20.x built on-top of ubuntu Bionic"
+ARG name="base-go1.18"
+ARG summary="Base build image for go 1.18.x built on-top of ubuntu Bionic"
 LABEL description="${summary}" \
       maintainer="cloudnull.io <kevin@cloudnull.com>" \
       app.kubernetes.io/name="${name}" \
@@ -10,15 +10,15 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
-ARG GO_URL=https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+ARG GO_URL=https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
 RUN rm -rf /usr/local/go
 RUN curl -L "$GO_URL" -o /tmp/go-linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf /tmp/go-linux-amd64.tar.gz
 ENV PATH="$PATH:/usr/local/go/bin"
 
 FROM ghcr.io/oshied/base-build:focal as focal
-ARG name="base-go1.20"
-ARG summary="Base build image for go 1.20.x built on-top of ubuntu Focal"
+ARG name="base-go1.18"
+ARG summary="Base build image for go 1.18.x built on-top of ubuntu Focal"
 LABEL description="${summary}" \
       maintainer="cloudnull.io <kevin@cloudnull.com>" \
       app.kubernetes.io/name="${name}" \
@@ -28,15 +28,15 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
-ARG GO_URL=https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+ARG GO_URL=https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
 RUN rm -rf /usr/local/go
 RUN curl -L "$GO_URL" -o /tmp/go-linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf /tmp/go-linux-amd64.tar.gz
 ENV PATH="$PATH:/usr/local/go/bin"
 
 FROM ghcr.io/oshied/base-build:jammy as jammy
-ARG name="base-go1.20"
-ARG summary="Base build image for go 1.20.x built on-top of ubuntu Jammy"
+ARG name="base-go1.18"
+ARG summary="Base build image for go 1.18.x built on-top of ubuntu Jammy"
 LABEL description="${summary}" \
       maintainer="cloudnull.io <kevin@cloudnull.com>" \
       app.kubernetes.io/name="${name}" \
@@ -46,7 +46,7 @@ LABEL description="${summary}" \
       org.opencontainers.image.authors="kevin@cloudnull.com" \
       org.opencontainers.image.vendor="cloudnull.io" \
       org.opencontainers.image.description="${summary}"
-ARG GO_URL=https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
+ARG GO_URL=https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
 RUN rm -rf /usr/local/go
 RUN curl -L "$GO_URL" -o /tmp/go-linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf /tmp/go-linux-amd64.tar.gz
