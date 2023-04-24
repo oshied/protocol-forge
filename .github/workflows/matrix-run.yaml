@@ -50,7 +50,7 @@ jobs:
       manifest: ${{ steps.manifest_output.outputs.value }}
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 3
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     steps:
       - uses: actions/checkout@v3
@@ -133,7 +133,7 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 3
       matrix: "${{ fromJson(needs.setup.outputs.matrix) }}"
     if: ${{ needs.build.outputs.manifest != '' }}
     steps:
