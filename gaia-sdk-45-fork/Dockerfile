@@ -1,11 +1,11 @@
-FROM ghcr.io/oshied/base-go1.18:jammy as BUILD
+FROM ghcr.io/oshied/base-go1.20:jammy as BUILD
 ARG git_repository=https://github.com/cosmos/gaia.git
 ARG git_version=main
 RUN git clone --recursive --branch $git_version $git_repository /build_dir
 WORKDIR /build_dir
-RUN sed -i 's@github.com/cosmos/cosmos-sdk =>.*@github.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec@' go.mod
-RUN sed -i 's@github.com/cosmos/cosmos-sdk v0.45.15-ics h1.*@github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec h1:tLRNo92hab2C+sF4GKPeP45K8ZlizcQ0WeX2NC0Kb9k=@' go.sum
-RUN sed -i 's@github.com/cosmos/cosmos-sdk v0.45.15-ics/go.mod h1.*@github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec/go.mod h1:bScuNwWAP0TZJpUf+SHXRU3xGoUPp+X9nAzfeIXts40=@' go.sum
+RUN sed -i '/replace/a \\tgithub.com/cosmos/cosmos-sdk => github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec' go.mod
+RUN sed -i 's@github.com/cosmos/cosmos-sdk v0.45.16-ics h1.*@github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec h1:tLRNo92hab2C+sF4GKPeP45K8ZlizcQ0WeX2NC0Kb9k=@' go.sum
+RUN sed -i 's@github.com/cosmos/cosmos-sdk v0.45.16-ics/go.mod h1.*@github.com/notional-labs/cosmos-sdk v0.45.16-0.20230409050322-1846175439ec/go.mod h1:bScuNwWAP0TZJpUf+SHXRU3xGoUPp+X9nAzfeIXts40=@' go.sum
 RUN make build
 
 FROM gcr.io/distroless/base-debian11:latest
